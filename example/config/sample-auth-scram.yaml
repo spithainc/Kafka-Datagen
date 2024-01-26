@@ -1,0 +1,19 @@
+## Kafka settings
+bootstrap-server: {BOOTSTRAP_SERVER}
+producer:
+  sasl:
+    mechanism: SCRAM-SHA-512
+    username: {USERNAME}
+    password: {PASSWORD}
+
+## Topic settings
+topic: 
+  name: datagen-users
+  partition: 3
+  replica-factor: 1
+
+## Datagen settings
+datagen:
+  quickstart: users
+  go-routine: 1
+  rate-per-second: 10

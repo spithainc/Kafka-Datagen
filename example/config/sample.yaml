@@ -1,0 +1,15 @@
+## Kafka settings
+bootstrap-server: localhost:9092
+producer:
+  compression-type: uncompressed
+
+## Topic settings
+topic: 
+  name: datagen-users-shan
+  partition: 6
+  replica-factor: 2
+
+# ## Datagen settings
+datagen:
+  quickstart: users
+  rate-per-second: 100

@@ -1,0 +1,32 @@
+## Kafka settings
+bootstrap-server: {BOOTSTRAP_SERVER}
+producer:
+  sasl:
+    mechanism: {MECHANISM}
+    # AWS_MSK_IAM
+    aws-access-key-id: {AWS_ACCESS_KEY_ID}
+    aws-secret-access-key: {AWS_SECRET_ACCESS_KEY}
+    # OAUTHBEARER
+    client-id:  {CLIENT_ID}
+    client-secret: {CLIENT_SECRET}
+    token-endpoint: {TOKEN_ENDPOINT}
+    # SCRAM, PLAIN
+    username: {USERNAME}
+    password: {PASSWORD}
+  tls:
+    cafile:  {CA_FILE}
+    certfile: {CERT_FILE}
+    keyfile: {KEY_FILE}
+    skipverify: 
+
+## Topic settings
+topic: 
+  name: datagen-users
+  partition: 3
+  replica-factor: 1
+
+## Datagen settings
+datagen:
+  quickstart: users
+  go-routine: 1
+  rate-per-second: 10

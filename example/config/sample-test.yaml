@@ -1,0 +1,46 @@
+## Kafka settings
+bootstrap-server: 172.17.25.40:9092,172.17.25.41:9092,172.17.25.42:9092,,172.17.25.43:9092
+producer:
+  max-message-bytes: 1000000
+  lingers: 500
+  compression-type: uncompressed
+  # sasl:
+  #   mechanism: SCRAM-SHA-512
+  #   username: admin
+  #   password: admin-secret
+  # tls:
+  #   certfile: truststore.crt
+  #   keyfile: 456
+  #   cafile:  truststore.crt
+  #   skipverify: true
+
+
+## Topic settings
+topic: 
+  name: shan-datagen-test2
+  partition: 6
+  replica-factor: 2
+
+## Datagen settings
+# datagen:
+#   quickstart: user # user, book, car, address, contact, movie, job
+#   go-routine: 15
+#   rate-per-second: 10000
+
+
+#### EXAMPLE ####
+## interval
+# datagen:
+#   message-bytes: 10
+#   go-routine: 15
+#   interval: 0
+
+## Rate Per Sec
+# datagen:
+#   message-bytes: 10
+#   go-routine: 15
+#   rate-per-second: 100000
+
+## Limit Data Amount Per Sec 
+datagen:
+  limit-data-amount-per-second : 10000000

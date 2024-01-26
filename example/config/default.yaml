@@ -1,0 +1,29 @@
+## Kafka settings
+bootstrap-server: localhost:9092
+
+## Topic settings
+topic: 
+  name: datagen-spitha
+
+## Datagen settings
+# datagen:
+#   quickstart: user # user, book, car, address, contact, movie, job
+#   go-routine: 15
+#   rate-per-second: 10000
+
+#### EXAMPLE ####
+## interval
+# datagen:
+#   message-bytes: 10
+#   go-routine: 15
+#   interval: 0
+
+## Rate Per Sec
+# datagen:
+#   message-bytes: 10
+#   go-routine: 15
+#   rate-per-second: 100000
+
+## Limit Data Amount Per Sec 
+datagen:
+  limit-data-amount-per-second : 10000000

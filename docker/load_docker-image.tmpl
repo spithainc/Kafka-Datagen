@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+docker load -i ${TARGET}-docker.tar
+docker image tag ${TARGET}:${VERSION} ${TARGET}:latest
