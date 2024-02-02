@@ -32,6 +32,7 @@ jobs:
         docker tag $REPO:latest $NAME/$REPO:latest
         docker tag $REPO:latest $NAME/$REPO:$SVERSION
         docker tag $REPO:latest $NAME/$REPO:$MVERSION
-        docker push $NAME/$REPO:latest
+        docker push $NAME/$REPO:$VERSION
         docker push $NAME/$REPO:$SVERSION
         docker push $NAME/$REPO:$MVERSION
+        docker push $NAME/$REPO:latest
