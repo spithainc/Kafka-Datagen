@@ -24,6 +24,14 @@ jobs:
         NAME: spitharepo
         REPO: kafka-datagen 
       run: |
+        VERSION=`cat ./VERSION`
+        SVERSION=`echo $VERSION | cut -d'.' -f1-2`
+        MVERSION=`echo $VERSION | cut -d'.' -f1`
+        
         docker build -t $REPO .
         docker tag $REPO:latest $NAME/$REPO:latest
+        docker tag $REPO:latest $NAME/$REPO:$SVERSION
+        docker tag $REPO:latest $NAME/$REPO:$MVERSION
         docker push $NAME/$REPO:latest
+        docker push $NAME/$REPO:$SVERSION
+        docker push $NAME/$REPO:$MVERSION
