@@ -28,7 +28,7 @@ jobs:
         SVERSION=`echo $VERSION | cut -d'.' -f1-2`
         MVERSION=`echo $VERSION | cut -d'.' -f1`
         
-        docker build -t $REPO .
+        make -C docker
         docker tag $REPO:latest $NAME/$REPO:latest
         docker tag $REPO:latest $NAME/$REPO:$VERSION
         docker tag $REPO:latest $NAME/$REPO:$SVERSION
