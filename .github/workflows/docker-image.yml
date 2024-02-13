@@ -3,7 +3,7 @@ name: kafka-datagen
 on:
   push:
     branches: []
-    tags: [ '*' ]
+    tags: [ 'v*.*.*' ]
   pull_request:
     branches: []
 
