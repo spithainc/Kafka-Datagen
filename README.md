@@ -62,7 +62,7 @@ docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DAT
 | `PRODUCER_MAX_MESSAGE_BYTES`  | Producer `max.message.bytes` setting        |        -        |
 | `PRODUCER_LINGERS`            | Producer `lingers` setting                  |        -        |
 | `PRODUCER_COMPRESSION_TYPE`   | Producer compression setting                |        -        |
-| `PRODUCER_SASL_MECHANISM`     | Producer authentication mechanism setting   |        -        |
+| `PRODUCER_CLIENT_ID`          | Producer clieit id setting                  |        -        |
 
 
 ### Datagen Producer Authentication
