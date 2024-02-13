@@ -2,8 +2,6 @@ package src
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -197,7 +195,7 @@ func worker(jobs <-chan int, wg *sync.WaitGroup, opts []kgo.Opt, ctx context.Con
 		case PRODUCE_RATE_PER_SEC:
 			produceRatePerSecond(client, ctx, ratePerSecond, quickstart, messageBytes, ratepersecondJitter)
 		case PRODUCE_LIMIT_DATA_AMOUNT_PER_SEC:
-			produceLimitPerSecond(client, ctx, limitPerSecond)
+			produceLimitPerSecond(client, ctx, limitPerSecond, quickstart, messageBytes)
 		default:
 			Log.Info(fmt.Sprintln("the value is missing or invalid in the produce type"))
 		}
@@ -260,7 +258,7 @@ func produceRatePerSecond(client *kgo.Client, ctx context.Context, ratePerSecond
 }
 
 // Produce Limit Per Second
-func produceLimitPerSecond(client *kgo.Client, ctx context.Context, limitPerSecond int) {
+func produceLimitPerSecond(client *kgo.Client, ctx context.Context, limitPerSecond int, quickStart string, messageBytes int) {
 	var bytesSent int
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
@@ -270,26 +268,13 @@ func produceLimitPerSecond(client *kgo.Client, ctx context.Context, limitPerSeco
 			bytesSent = 0
 		default:
 			if bytesSent < limitPerSecond {
-				valueData := make([]byte, limitPerSecond/100)
-				_, err := rand.Read(valueData)
-				if err != nil {
-					Log.Error(fmt.Sprintln(err))
-				}
-				byteData, err := json.Marshal(valueData)
-				if err != nil {
-					fmt.Println(err)
-				}
-
-				record := kgo.Record{
-					Value: byteData,
-				}
-
+				message := makeMessage(quickStart, messageBytes)
 				latencyStart := time.Now()
-				_, err = client.ProduceSync(ctx, &record).First()
+				_, err := client.ProduceSync(ctx, &message).First()
 				if err != nil {
 					panic(err)
 				}
-				bytesSent += len(record.Key) + len(record.Value)
+				bytesSent += len(message.Key) + len(message.Value)
 				latencyEnd := time.Now()
 				latency := latencyEnd.Sub(latencyStart)
 				arrLatency = append(arrLatency, latency)

@@ -11,6 +11,8 @@ topic:
 ## Datagen settings
 ## Limit Data Amount Per Sec 
 datagen:
-  rate-per-second: 1000
-  rate-per-second-jitter: 0.5
-  # limit-data-amount-per-second : 10000
+  #rate-per-second: 1000
+  #rate-per-second-jitter: 0.5
+  limit-data-amount-per-second : 20000
+  # quickstart: car
+  message-bytes: 1000

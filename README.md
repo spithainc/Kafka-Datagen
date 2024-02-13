@@ -43,17 +43,22 @@ or
 docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DATAGEN_LIMIT_DATA_AMOUNT_PER_SECOND=10000 spitharepo/kafka-datagen:latest
 ```
 
-## (Docker) Environment Settings 
-
-### Configuration Precautions
+## Configuration Precautions
 - When generating data with Datagen, the following settings should be noted:
 
+### Produce Type (Choose one)
 - datagen.limit-data-amount-per-second
-  - This setting controls the amount of data per second. If only this setting is applied to Datagen, it adjusts the size and number of data appropriately to generate data. Therefore, the datagen.rate-per-second, datagen.go-routine, datagen.interval, datagen.message-bytes, and quickstart settings are not applied.
-- datagen.interval and datagen.rate-per-second
-  - Each setting determines the interval and the number of data produced per second. As you can't put an interval on the settings that determine the number of data produced per second, the two settings are not applied together. The default setting is interval, and if both are set, the setting with higher priority is rate-per-second.
+  - This setting limits the amount of data per second. It can be used in conjunction with the `quickstart` and `message-bytes` settings, and in case it exceeds the set byte figure, it limits the amount of data per second.
+- datagen.interval
+  - This setting sets an interval for data transmission. It can be used in conjunction with the `quickstart` and `message-bytes` settings, and it puts an interval between each piece of data.
+- datagen.rate-per-second
+  - This setting allows you to set the amount of data per second. It can be used in conjunction with the `quickstart` and `message-bytes` settings. If set to 500, for example, it will generate 500 pieces of data.
+
+### Message Type (Choose one)
 - datagen.quickstart and datagen.message-bytes
   - Each setting specifies the type of message. In the case of quickstart, it generates messages randomly in the specified format. In the case of message-bytes, it specifies the size of the message to be produced. The two settings are about the data that generates messages and cannot be used simultaneously.
+
+## (Docker) Environment Settings 
 
 ### Datagen Producer Settings 
 | Configuration                 | Description                                 | Default Value   |
