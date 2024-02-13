@@ -112,9 +112,9 @@ func Datagen() {
 		produceType = PRODUCE_LIMIT_DATA_AMOUNT_PER_SEC
 		workThread = DEFAULT_WORK_TRHEAD
 	}
-	ratepersecondJitter := DEFAUTL_JITTER_RATE
-	if Module.Datagen.RatePerSecondJitter != "" {
-		ratepersecondJitter = stringToFloat64(Module.Datagen.RatePerSecondJitter)
+	jitter := DEFAUTL_JITTER_RATE
+	if Module.Datagen.Jitter != "" {
+		jitter = stringToFloat64(Module.Datagen.Jitter)
 	}
 
 	// ticker
@@ -165,7 +165,7 @@ func Datagen() {
 	wg.Add(workThread)
 	produceJobs := make(chan int, workThread)
 	for i := 1; i <= workThread; i++ {
-		go worker(produceJobs, &wg, opts, ctx, produceType, ratePerSecond, interval, quickstart, messageBytes, limitPerSecond, ratepersecondJitter)
+		go worker(produceJobs, &wg, opts, ctx, produceType, ratePerSecond, interval, quickstart, messageBytes, limitPerSecond, jitter)
 	}
 
 	go func() {
@@ -178,7 +178,7 @@ func Datagen() {
 }
 
 // Producer thread
-func worker(jobs <-chan int, wg *sync.WaitGroup, opts []kgo.Opt, ctx context.Context, produceType int, ratePerSecond int, interval int, quickstart string, messageBytes int, limitPerSecond int, ratepersecondJitter float64) {
+func worker(jobs <-chan int, wg *sync.WaitGroup, opts []kgo.Opt, ctx context.Context, produceType int, ratePerSecond int, interval int, quickstart string, messageBytes int, limitPerSecond int, jitter float64) {
 
 	// kafka client
 	client, err := kgo.NewClient(opts...)
@@ -191,11 +191,11 @@ func worker(jobs <-chan int, wg *sync.WaitGroup, opts []kgo.Opt, ctx context.Con
 		// Produce Messages
 		switch produceType {
 		case PRODUCE_INTERVAL:
-			produceInterval(client, ctx, interval, quickstart, messageBytes)
+			produceInterval(client, ctx, interval, quickstart, messageBytes, jitter)
 		case PRODUCE_RATE_PER_SEC:
-			produceRatePerSecond(client, ctx, ratePerSecond, quickstart, messageBytes, ratepersecondJitter)
+			produceRatePerSecond(client, ctx, ratePerSecond, quickstart, messageBytes, jitter)
 		case PRODUCE_LIMIT_DATA_AMOUNT_PER_SEC:
-			produceLimitPerSecond(client, ctx, limitPerSecond, quickstart, messageBytes)
+			produceLimitPerSecond(client, ctx, limitPerSecond, quickstart, messageBytes, jitter)
 		default:
 			Log.Info(fmt.Sprintln("the value is missing or invalid in the produce type"))
 		}
@@ -209,7 +209,8 @@ func worker(jobs <-chan int, wg *sync.WaitGroup, opts []kgo.Opt, ctx context.Con
 }
 
 // Interval Producer
-func produceInterval(client *kgo.Client, ctx context.Context, interval int, quickStart string, messageBytes int) {
+func produceInterval(client *kgo.Client, ctx context.Context, interval int, quickStart string, messageBytes int, jitter float64) {
+	interval = makeRatePerSecondJitter(PRODUCE_INTERVAL, interval, jitter)
 	latencyStart := time.Now()
 	message := makeMessage(quickStart, messageBytes)
 	_, err := client.ProduceSync(ctx, &message).First()
@@ -225,10 +226,10 @@ func produceInterval(client *kgo.Client, ctx context.Context, interval int, quic
 }
 
 // Produce Message per Second
-func produceRatePerSecond(client *kgo.Client, ctx context.Context, ratePerSecond int, quickStart string, messageBytes int, ratepersecondJitter float64) {
+func produceRatePerSecond(client *kgo.Client, ctx context.Context, ratePerSecond int, quickStart string, messageBytes int, jitter float64) {
 	waitStart := time.Now()
 	index := 0
-	ratePerSecond = makeRatePerSecondJitter(ratePerSecond, ratepersecondJitter)
+	ratePerSecond = makeRatePerSecondJitter(PRODUCE_RATE_PER_SEC, ratePerSecond, jitter)
 	for {
 		index++
 		// Set Data
@@ -258,16 +259,19 @@ func produceRatePerSecond(client *kgo.Client, ctx context.Context, ratePerSecond
 }
 
 // Produce Limit Per Second
-func produceLimitPerSecond(client *kgo.Client, ctx context.Context, limitPerSecond int, quickStart string, messageBytes int) {
+func produceLimitPerSecond(client *kgo.Client, ctx context.Context, limitPerSecond int, quickStart string, messageBytes int, jitter float64) {
 	var bytesSent int
 	ticker := time.NewTicker(time.Second)
+	jitterLimitPerSecond := limitPerSecond
 	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:
 			bytesSent = 0
+			jitterLimitPerSecond = makeRatePerSecondJitter(PRODUCE_LIMIT_DATA_AMOUNT_PER_SEC, limitPerSecond, jitter)
+			fmt.Println(jitterLimitPerSecond)
 		default:
-			if bytesSent < limitPerSecond {
+			if bytesSent < jitterLimitPerSecond {
 				message := makeMessage(quickStart, messageBytes)
 				latencyStart := time.Now()
 				_, err := client.ProduceSync(ctx, &message).First()

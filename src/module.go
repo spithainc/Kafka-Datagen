@@ -50,5 +50,5 @@ type DatagenModule struct {
 	Interval                 string `yaml:"interval"`
 	MessageBytes             string `yaml:"message-bytes"`
 	LimitDataAmountPerSecond string `yaml:"limit-data-amount-per-second"`
-	RatePerSecondJitter      string `yaml:"rate-per-second-jitter"`
+	Jitter                   string `yaml:"jitter"`
 }

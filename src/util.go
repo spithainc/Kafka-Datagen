@@ -12,19 +12,43 @@ import (
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func makeRatePerSecondJitter(ratePerSecond int, jitterRate float64) int {
+func makeRatePerSecondJitter(producerType int, defaultValue int, jitterRate float64) int {
 	if jitterRate == 0 {
-		return ratePerSecond
+		return defaultValue
 	}
-	min := ratePerSecond - int((jitterRate)*float64(ratePerSecond))
-	max := ratePerSecond + int((jitterRate)*float64(ratePerSecond))
-	diff := max - min
-	randNum, _ := rand.Int(rand.Reader, big.NewInt(int64(diff+1)))
-	result := min + int(randNum.Int64())
-	if result == 0 {
-		return 1
+	switch producerType {
+	case PRODUCE_INTERVAL:
+		min := defaultValue - int((jitterRate)*float64(defaultValue))
+		max := defaultValue + int((jitterRate)*float64(defaultValue))
+		diff := max - min
+		randNum, _ := rand.Int(rand.Reader, big.NewInt(int64(diff+1)))
+		result := min + int(randNum.Int64())
+		if result == 0 {
+			return 1
+		}
+		return result
+	case PRODUCE_RATE_PER_SEC:
+		min := defaultValue - int((jitterRate)*float64(defaultValue))
+		max := defaultValue + int((jitterRate)*float64(defaultValue))
+		diff := max - min
+		randNum, _ := rand.Int(rand.Reader, big.NewInt(int64(diff+1)))
+		result := min + int(randNum.Int64())
+		if result == 0 {
+			return 1
+		}
+		return result
+	case PRODUCE_LIMIT_DATA_AMOUNT_PER_SEC:
+		min := defaultValue - int((jitterRate)*float64(defaultValue))
+		max := defaultValue + int((jitterRate)*float64(defaultValue))
+		diff := max - min
+		randNum, _ := rand.Int(rand.Reader, big.NewInt(int64(diff+1)))
+		result := min + int(randNum.Int64())
+		if result == 0 {
+			return 1
+		}
+		return result
 	}
-	return result
+	return defaultValue
 }
 
 func makeMessage(quickStart string, messageByte int) kgo.Record {
