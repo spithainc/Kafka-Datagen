@@ -3,6 +3,7 @@
 {{- $producerMaxMessageBytes := env.Getenv "PRODUCER_MAX_MESSAGE_BYTES"}}
 {{- $producerLingers := env.Getenv "PRODUCER_LINGERS"}}
 {{- $producerCompressionType := env.Getenv "PRODUCER_COMPRESSION_TYPE"}}
+{{- $producerClientId := env.Getenv "PRODUCER_CLIENT_ID"}}
 
 {{- $producerSaslMechanism := env.Getenv "PRODUCER_SASL_MECHANISM"}}
 {{- $producerSaslUsername := env.Getenv "PRODUCER_SASL_USERNAME"}}
@@ -29,6 +30,9 @@ producer:
   {{- end}}
   {{- if $producerCompressionType }}
   compression-type: {{$producerCompressionType}}
+  {{- end}}
+  {{- if $producerClientId }}
+  client-id: {{$producerClientId}}
   {{- end}}
   {{- if $producerSaslMechanism }}
   sasl:

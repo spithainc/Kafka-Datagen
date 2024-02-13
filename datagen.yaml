@@ -2,6 +2,7 @@
 bootstrap-server: 172.17.25.40:9092
 producer:
   compression-type: uncompressed
+  client-id: test
 
 ## Topic settings
 topic: 
@@ -11,5 +12,5 @@ topic:
 ## Limit Data Amount Per Sec 
 datagen:
   rate-per-second: 1000
-  rate-per-second-jitter: 1.5
+  rate-per-second-jitter: 0.5
   # limit-data-amount-per-second : 10000

@@ -14,6 +14,7 @@ type ProducerModule struct {
 	MaxMessageBytes string `yaml:"max-message-bytes"`
 	Lingers         string `yaml:"lingers"`
 	CompressionType string `yaml:"compression-type"`
+	ClientId        string `yaml:"client-id"` // producer client-id
 	Sasl            struct {
 		Mechanism          string `yaml:"mechanism"` // sasl, plain
 		Username           string `yaml:"username"`
