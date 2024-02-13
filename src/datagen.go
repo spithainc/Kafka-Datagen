@@ -54,6 +54,10 @@ func Datagen() {
 	}
 
 	// setting for producer
+	if Module.Producer.ClientId != "" {
+		opts = append(opts, kgo.ClientID(Module.Producer.ClientId))
+		Log.Info(fmt.Sprintln("cleint id : ", Module.Producer.ClientId))
+	}
 	if Module.Producer.MaxMessageBytes != "" {
 		opts = append(opts, kgo.ProducerBatchMaxBytes(int32(stringToInt(Module.Producer.MaxMessageBytes))))
 	}
