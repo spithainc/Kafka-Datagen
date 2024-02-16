@@ -11,6 +11,7 @@ The distinctive features of Datagen include:
 - Adjustable message creation interval per second
 - Ability to specify the desired amount of messages to be produced per second
 
+
 ## Build
 
 Datagen uses Docker to ensure the same build environment. If Docker is installed, you can build it using the following command.
@@ -18,6 +19,7 @@ Datagen uses Docker to ensure the same build environment. If Docker is installed
 ```bash
 make build
 ```
+
 
 ## Quickstart
 
@@ -43,6 +45,7 @@ or
 docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DATAGEN_LIMIT_DATA_AMOUNT_PER_SECOND=10000 spitharepo/kafka-datagen:latest
 ```
 
+
 ## Configuration Precautions
 - When generating data with Datagen, the following settings should be noted:
 
@@ -58,59 +61,55 @@ docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DAT
 - datagen.quickstart and datagen.message-bytes
   - Each setting specifies the type of message. In the case of quickstart, it generates messages randomly in the specified format. In the case of message-bytes, it specifies the size of the message to be produced. The two settings are about the data that generates messages and cannot be used simultaneously.
 
-## (Docker) Environment Settings 
+
+## Docker Environment Settings 
 
 ### Datagen Producer Settings 
-| Configuration                 | Description                                 | Default Value   |
-|-------------------------------|---------------------------------------------|-----------------|
-| `BOOTSTRAP_SERVER`            | Kafka broker address                        |        -        |
-| `PRODUCER_MAX_MESSAGE_BYTES`  | Producer `max.message.bytes` setting        |        -        |
-| `PRODUCER_LINGERS`            | Producer `lingers` setting                  |        -        |
-| `PRODUCER_COMPRESSION_TYPE`   | Producer compression setting                |        -        |
-| `PRODUCER_CLIENT_ID`          | Producer clieit id setting                  |        -        |
-
+| Docker Envronment             | YAML                          | Description                                 | Default Value   | type   |
+|-------------------------------|-------------------------------|---------------------------------------------|-----------------|--------|
+| `BOOTSTRAP_SERVER`            | bootstrap-server              | Kafka broker address                        |        -        | string |
+| `PRODUCER_MAX_MESSAGE_BYTES`  | producer.max-message-bytes    | Producer `max.message.bytes` setting        |        -        | int    |
+| `PRODUCER_LINGERS`            | producer.lingers              | Producer `lingers` setting                  |        -        | int    |
+| `PRODUCER_COMPRESSION_TYPE`   | producer.compression-type     | Producer compression setting                |        -        | string |
+| `PRODUCER_CLIENT_ID`          | producer.client-id            | Producer clieit id setting                  |        -        | string |
 
 ### Datagen Producer Authentication
-
-
-| Configuration                       | Description                                                                   | Default Value   |
-|-------------------------------------|-------------------------------------------------------------------------------|-----------------|
-| `PRODUCER_SASL_MECHANISM`           | Producer authentication mechanism setting                                     |        -        |
-| `PRODUCER_SASL_USERNAME`            | User setting according to SCRAM,PLAIN authentication mechanism                |        -        |
-| `PRODUCER_SASL_PASSWORD`            | User password setting according to SCRAM,PLAIN authentication mechanism       |        -        |
-| `PRODUCER_SASL_AWS_ACCESS_KEY_ID`   | `aws-access-key-id` setting according to AWS authentication mechanism         |        -        |
-| `PRODUCER_SASL_AWS_SECRET_ACCESS_KEY` | `aws-secret-access-key` setting according to AWS authentication mechanism   |        -        |
-| `PRODUCER_SASL_CLIENT_ID`           | `client-id` setting according to OAUTHBEARER authentication mechanism         |        -        |
-| `PRODUCER_SASL_CLIENT_SECRET`       | `client-secret` setting according to OAUTHBEARER authentication mechanism     |        -        |
-| `PRODUCER_SASL_TOKEN_ENDPOINT`      | `token-endpoint` setting according to OAUTHBEARER authentication mechanism    |        -        |
-
+| Docker Envronment                     | YAML                                | Description                                                                   | Default Value   | type   |
+|---------------------------------------|-------------------------------------|-------------------------------------------------------------------------------|-----------------|--------|
+| `PRODUCER_SASL_MECHANISM`             | producer.sasl.mechanism             | Producer authentication mechanism setting                                     |        -        | string |
+| `PRODUCER_SASL_USERNAME`              | producer.sasl.username              | User setting according to SCRAM,PLAIN authentication mechanism                |        -        | string |
+| `PRODUCER_SASL_PASSWORD`              | producer.sasl.password              | User password setting according to SCRAM,PLAIN authentication mechanism       |        -        | string |
+| `PRODUCER_SASL_AWS_ACCESS_KEY_ID`     | producer.sasl.aws-access-key-id     | `aws-access-key-id` setting according to AWS authentication mechanism         |        -        | string |
+| `PRODUCER_SASL_AWS_SECRET_ACCESS_KEY` | producer.sasl.aws-secret-access-key | `aws-secret-access-key` setting according to AWS authentication mechanism     |        -        | string |
+| `PRODUCER_SASL_CLIENT_ID`             | producer.sasl.client-id             | `client-id` setting according to OAUTHBEARER authentication mechanism         |        -        | string |
+| `PRODUCER_SASL_CLIENT_SECRET`         | producer.sasl.client-secret         | `client-secret` setting according to OAUTHBEARER authentication mechanism     |        -        | string |
+| `PRODUCER_SASL_TOKEN_ENDPOINT`        | producer.sasl.token-endpoint        | `token-endpoint` setting according to OAUTHBEARER authentication mechanism    |        -        | string |
 
 ### Datagen Producer Tls
-| Configuration                   | Description                             | Default Value   |
-|---------------------------------|-----------------------------------------|-----------------|
-| `PRODUCER_TLS_CAFILE`           | TLS CAFile registration                 |        -        |
-| `PRODUCER_TLS_CERTFILE`         | TLS CertFile registration               |        -        |
-| `PRODUCER_TLS_KEYFILE`          | TLS KeyFile registration                |        -        |
-| `PRODUCER_TLS_SKIPVERIFY`       | TLS Skipverify setting                  |        -        |
-
+| Docker Envronment               | YAML                          | Description                             | Default Value   | type   |
+|---------------------------------|-------------------------------|-----------------------------------------|-----------------|--------|
+| `PRODUCER_TLS_CAFILE`           | producer.tls.cafile           | TLS CAFile registration                 |        -        | string |
+| `PRODUCER_TLS_CERTFILE`         | producer.tls.certfile         | TLS CertFile registration               |        -        | string |
+| `PRODUCER_TLS_KEYFILE`          | producer.tls.keyfile          | TLS KeyFile registration                |        -        | string |
+| `PRODUCER_TLS_SKIPVERIFY`       | producer.tls.skipverify       | TLS Skipverify setting                  |        -        | bool   |
 
 ### Topic 
-| Configuration Item         | Description                                | Default Value   |
-|----------------------------|--------------------------------------------|-----------------|
-| `TOPIC_NAME`               | Topic name                                 |        -        |
-| `TOPIC_PARTITION`          | Number of partitions (at initial creation) | 3               |
-| `TOPIC_REPLICA_FACTOR`     | Number of replicas (at initial creation)   | 1               |
-
+| Docker Envronment          | YAML                          | Description                                | Default Value   | type   |
+|----------------------------|-------------------------------|--------------------------------------------|-----------------|--------|
+| `TOPIC_NAME`               | topic.name                    | Topic name                                 |        -        | string |
+| `TOPIC_PARTITION`          | topic.partition               | Number of partitions (at initial creation) | 3               | int    |
+| `TOPIC_REPLICA_FACTOR`     | topic.replica-factor          | Number of replicas (at initial creation)   | 1               | int    |
 
 ### Datagen
-| Configuration                             | Description                                                                          | Default Value   |
-|-------------------------------------------|--------------------------------------------------------------------------------------|-----------------|
-| `DATAGEN_QUICKSTART`                      | Data generation `quickstart` setting (user, book, car, address, contact, movie, job) |        -        |
-| `DATAGEN_MESSAGE_BYTES`                   | Setting for `message-bytes` generated per entry                                      | 100             |
-| `DATAGEN_GO_ROUTINE`                      | Setting for the number of `go-routine`                                               | 1               |
-| `DATAGEN_RATE_PER_SECOND`                 | Setting for the number of messages per second in `rate-per-second`                   |        -        |
-| `DATAGEN_INTERVAL`                        | Setting for message transmission interval in `interval`                              | 0               |
-| `DATAGEN_LIMIT_DATA_AMOUNT_PER_SECOND`    | Adjusting the limit of message amount per second in `limit-data-amount-per-second`   |        -        |
+| Docker Envronment                         | YAML                                 | Description                                                                          | Default Value   | type   |
+|-------------------------------------------|--------------------------------------|--------------------------------------------------------------------------------------|-----------------|--------|
+| `DATAGEN_QUICKSTART`                      | datagen.quickstart                   | Data generation `quickstart` setting (user, book, car, address, contact, movie, job) |        -        | string |
+| `DATAGEN_MESSAGE_BYTES`                   | datagen.message-bytes                | Setting for `message-bytes` generated per entry                                      | 100             | string |
+| `DATAGEN_GO_ROUTINE`                      | datagen.go-routine                   | Setting for the number of `go-routine`                                               | 1               | int    |
+| `DATAGEN_JITTER`                          | datagen.jitter                       | It creates jitter for a specified producer type.                                     |        -        | float  |
+| `DATAGEN_RATE_PER_SECOND`                 | datagen.rate-per-second              | Setting for the number of messages per second in `rate-per-second`                   |        -        | int    |
+| `DATAGEN_INTERVAL`                        | datagen.interval                     | Setting for message transmission interval in `interval`                              | 0               | int    |
+| `DATAGEN_LIMIT_DATA_AMOUNT_PER_SECOND`    | datagen.limit-data-amount-per-second | Adjusting the limit of message amount per second in `limit-data-amount-per-second`   |        -        | int    |
 
 
 # License

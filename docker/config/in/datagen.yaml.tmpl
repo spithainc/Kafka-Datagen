@@ -74,7 +74,7 @@ topic:
 {{- $datagenGoRoutine := env.Getenv "DATAGEN_GO_ROUTINE"}}
 
 {{- $datagenRatePerSecond := env.Getenv "DATAGEN_RATE_PER_SECOND"}}
-{{- $datagenRatePerSecondJitter := env.Getenv "DATAGEN_RATE_PER_SECOND_JITTER"}}
+{{- $datagenJitter := env.Getenv "DATAGEN_JITTER"}}
 {{- $datagenInterval := env.Getenv "DATAGEN_INTERVAL"}}
 {{- $datagenLimitDataAmountPerSecond := env.Getenv "DATAGEN_LIMIT_DATA_AMOUNT_PER_SECOND"}}
 
@@ -89,7 +89,7 @@ datagen:
   {{- if $datagenRatePerSecond }}
   rate-per-second: {{$datagenRatePerSecond}}
     {{- if $datagenRatePerSecond }}
-  rate-per-second-jitter: {{$datagenRatePerSecondJitter}}
+  jitter: {{$datagenJitter}}
     {{- end}}
   {{- else if $datagenInterval }}
   interval: {{$datagenInterval}}
