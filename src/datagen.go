@@ -313,7 +313,10 @@ func produceLimitPerSecond(client *kgo.Client, ctx context.Context, limitPerSeco
 
 				latencyEnd := time.Now()
 				latency := latencyEnd.Sub(latencyStart)
+
+				mu.Lock()
 				arrLatency = append(arrLatency, latency)
+				mu.Unlock()
 			}
 		}
 	}
