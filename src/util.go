@@ -51,7 +51,7 @@ func makeRatePerSecondJitter(producerType int, defaultValue int, jitterRate floa
 	return defaultValue
 }
 
-func makeMessage(quickStart string, messageByte int) kgo.Record {
+func makeMessage(quickStart string, messageByte int) *kgo.Record {
 	var valueData interface{}
 	switch quickStart {
 	case "user":
@@ -69,19 +69,14 @@ func makeMessage(quickStart string, messageByte int) kgo.Record {
 	case "job":
 		valueData = gofakeit.Job()
 	default:
-		b := make([]byte, messageByte)
-		_, err := rand.Read(b)
-		if err != nil {
-			Log.Error(fmt.Sprintln(err))
-		}
-		valueData = b
+		return kgo.SliceRecord(make([]byte, messageByte))
 	}
 	byteData, err := json.Marshal(valueData)
 	if err != nil {
 		Log.Error(fmt.Sprintln(err))
-		return kgo.Record{}
+		return &kgo.Record{}
 	}
-	return kgo.Record{
+	return &kgo.Record{
 		Value:     byteData,
 		Timestamp: time.Now(),
 	}

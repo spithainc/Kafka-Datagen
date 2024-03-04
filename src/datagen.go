@@ -14,8 +14,10 @@ import (
 
 var (
 	arrLatency []time.Duration
+	mu         sync.Mutex
 )
 
+// produce type
 const (
 	PRODUCE_INTERVAL                  = 0
 	PRODUCE_RATE_PER_SEC              = 1
@@ -24,6 +26,7 @@ const (
 
 func Datagen() {
 
+	// default values
 	var (
 		DEFAULT_WORK_TRHEAD  = 1
 		DEFAULT_MESSAGE_SIZE = 100
@@ -124,7 +127,17 @@ func Datagen() {
 			Log.Info(fmt.Sprintln("min latency : ", findMinDuration(arrLatency)))
 			Log.Info(fmt.Sprintln("max latency : ", findMaxDuration(arrLatency)))
 			Log.Info(fmt.Sprintln("avg latency : ", findAverageDuration(arrLatency)))
-			Log.Info(fmt.Sprintln("number messages : ", len(arrLatency)))
+
+			messageByte := messageBytes * len(arrLatency)
+			messageMB := float64(messageByte) / 1024 / 1024
+
+			if messageMB < 0.01 {
+				messageKB := float64(messageByte) / 1024
+				Log.Info(fmt.Sprintln("number messages : ", len(arrLatency), "(total:", fmt.Sprintf("%.2f KB\n", messageKB), ")"))
+			} else {
+				Log.Info(fmt.Sprintln("number messages : ", len(arrLatency), "(total:", fmt.Sprintf("%.2f MB\n", messageMB), ")"))
+			}
+			fmt.Println()
 			arrLatency = []time.Duration{}
 		}
 	}()
@@ -164,8 +177,17 @@ func Datagen() {
 	var wg sync.WaitGroup
 	wg.Add(workThread)
 	produceJobs := make(chan int, workThread)
+
+	defer client.Close()
+
+	// producer client
+	opts = append(opts, kgo.MaxBufferedRecords(250<<20/messageBytes+1))
+	// opts = append(opts, kgo.FetchMaxBytes(5<<20))
+
 	for i := 1; i <= workThread; i++ {
-		go worker(produceJobs, &wg, opts, ctx, produceType, ratePerSecond, interval, quickstart, messageBytes, limitPerSecond, jitter)
+		// opts = append(opts, kgo.DefaultProduceTopic("3-TOPIC-"+fmt.Sprintf("%02d", i)))
+		// opts = append(opts, kgo.DefaultProduceTopic("6-TOPIC-"+fmt.Sprintf("%02d", i)))
+		go worker(opts, produceJobs, &wg, ctx, produceType, ratePerSecond, interval, quickstart, messageBytes, limitPerSecond, jitter)
 	}
 
 	go func() {
@@ -178,30 +200,29 @@ func Datagen() {
 }
 
 // Producer thread
-func worker(jobs <-chan int, wg *sync.WaitGroup, opts []kgo.Opt, ctx context.Context, produceType int, ratePerSecond int, interval int, quickstart string, messageBytes int, limitPerSecond int, jitter float64) {
+func worker(opts []kgo.Opt, jobs <-chan int, wg *sync.WaitGroup, ctx context.Context, produceType int, ratePerSecond int, interval int, quickstart string, messageBytes int, limitPerSecond int, jitter float64) {
 
-	// kafka client
-	client, err := kgo.NewClient(opts...)
+	// Producer Client
+	producerClient, err := kgo.NewClient(opts...)
 	if err != nil {
 		panic(err)
 	}
-	defer client.Close()
 
+	// Produce Messages
 	for range jobs {
-		// Produce Messages
 		switch produceType {
 		case PRODUCE_INTERVAL:
-			produceInterval(client, ctx, interval, quickstart, messageBytes, jitter)
+			produceInterval(producerClient, ctx, interval, quickstart, messageBytes, jitter)
 		case PRODUCE_RATE_PER_SEC:
-			produceRatePerSecond(client, ctx, ratePerSecond, quickstart, messageBytes, jitter)
+			produceRatePerSecond(producerClient, ctx, ratePerSecond, quickstart, messageBytes, jitter)
 		case PRODUCE_LIMIT_DATA_AMOUNT_PER_SEC:
-			produceLimitPerSecond(client, ctx, limitPerSecond, quickstart, messageBytes, jitter)
+			produceLimitPerSecond(producerClient, ctx, limitPerSecond, quickstart, messageBytes, jitter)
 		default:
 			Log.Info(fmt.Sprintln("the value is missing or invalid in the produce type"))
 		}
 	}
 	// Flush
-	if err := client.Flush(ctx); err != nil {
+	if err := producerClient.Flush(ctx); err != nil {
 		Log.Error(fmt.Sprintln(err))
 		panic(err)
 	}
@@ -213,14 +234,19 @@ func produceInterval(client *kgo.Client, ctx context.Context, interval int, quic
 	interval = makeRatePerSecondJitter(PRODUCE_INTERVAL, interval, jitter)
 	latencyStart := time.Now()
 	message := makeMessage(quickStart, messageBytes)
-	_, err := client.ProduceSync(ctx, &message).First()
-	if err != nil {
-		Log.Error(fmt.Sprintln(err))
-		panic(err)
-	}
+	client.Produce(ctx, message, func(r *kgo.Record, err error) {
+		if err != nil {
+			Log.Error(fmt.Sprintln(err))
+			panic(err)
+		}
+	})
+
 	latencyEnd := time.Now()
 	latency := latencyEnd.Sub(latencyStart)
+
+	mu.Lock()
 	arrLatency = append(arrLatency, latency)
+	mu.Unlock()
 
 	time.Sleep(time.Duration(interval) * time.Millisecond)
 }
@@ -237,14 +263,19 @@ func produceRatePerSecond(client *kgo.Client, ctx context.Context, ratePerSecond
 
 		// Produce
 		latencyStart := time.Now()
-		_, err := client.ProduceSync(ctx, &message).First()
-		if err != nil {
-			Log.Error(fmt.Sprintln(err))
-			panic(err)
-		}
+		client.Produce(ctx, message, func(r *kgo.Record, err error) {
+			if err != nil {
+				Log.Error(fmt.Sprintln(err))
+				panic(err)
+			}
+		})
+
 		latencyEnd := time.Now()
 		latency := latencyEnd.Sub(latencyStart)
+
+		mu.Lock()
 		arrLatency = append(arrLatency, latency)
+		mu.Unlock()
 
 		if index%ratePerSecond == 0 {
 			waitEnd := time.Now()
@@ -252,7 +283,6 @@ func produceRatePerSecond(client *kgo.Client, ctx context.Context, ratePerSecond
 			if duration < time.Second {
 				time.Sleep(time.Second - duration)
 			}
-			waitStart = time.Now()
 			break
 		}
 	}
@@ -269,20 +299,21 @@ func produceLimitPerSecond(client *kgo.Client, ctx context.Context, limitPerSeco
 		case <-ticker.C:
 			bytesSent = 0
 			jitterLimitPerSecond = makeRatePerSecondJitter(PRODUCE_LIMIT_DATA_AMOUNT_PER_SEC, limitPerSecond, jitter)
-			fmt.Println(jitterLimitPerSecond)
 		default:
 			if bytesSent < jitterLimitPerSecond {
 				message := makeMessage(quickStart, messageBytes)
 				latencyStart := time.Now()
-				_, err := client.ProduceSync(ctx, &message).First()
-				if err != nil {
-					panic(err)
-				}
+				client.Produce(ctx, message, func(r *kgo.Record, err error) {
+					if err != nil {
+						Log.Error(fmt.Sprintln(err))
+						panic(err)
+					}
+				})
 				bytesSent += len(message.Key) + len(message.Value)
+
 				latencyEnd := time.Now()
 				latency := latencyEnd.Sub(latencyStart)
 				arrLatency = append(arrLatency, latency)
-				break
 			}
 		}
 	}
