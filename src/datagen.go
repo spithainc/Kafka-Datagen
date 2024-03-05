@@ -12,11 +12,6 @@ import (
 	"github.com/twmb/franz-go/plugin/kzap"
 )
 
-var (
-	arrLatency []time.Duration
-	mu         sync.Mutex
-)
-
 // produce type
 const (
 	PRODUCE_INTERVAL                  = 0
@@ -120,28 +115,6 @@ func Datagen() {
 		jitter = stringToFloat64(Module.Datagen.Jitter)
 	}
 
-	// ticker
-	ticker := time.NewTicker(1 * time.Second)
-	go func() {
-		for range ticker.C {
-			Log.Info(fmt.Sprintln("min latency : ", findMinDuration(arrLatency)))
-			Log.Info(fmt.Sprintln("max latency : ", findMaxDuration(arrLatency)))
-			Log.Info(fmt.Sprintln("avg latency : ", findAverageDuration(arrLatency)))
-
-			messageByte := messageBytes * len(arrLatency)
-			messageMB := float64(messageByte) / 1024 / 1024
-
-			if messageMB < 0.01 {
-				messageKB := float64(messageByte) / 1024
-				Log.Info(fmt.Sprintln("number messages : ", len(arrLatency), "(total:", fmt.Sprintf("%.2f KB\n", messageKB), ")"))
-			} else {
-				Log.Info(fmt.Sprintln("number messages : ", len(arrLatency), "(total:", fmt.Sprintf("%.2f MB\n", messageMB), ")"))
-			}
-			fmt.Println()
-			arrLatency = []time.Duration{}
-		}
-	}()
-
 	// check topic
 	var adminClient *kadm.Client
 	client, err := kgo.NewClient(opts...)
@@ -182,11 +155,8 @@ func Datagen() {
 
 	// producer client
 	opts = append(opts, kgo.MaxBufferedRecords(250<<20/messageBytes+1))
-	// opts = append(opts, kgo.FetchMaxBytes(5<<20))
 
 	for i := 1; i <= workThread; i++ {
-		// opts = append(opts, kgo.DefaultProduceTopic("3-TOPIC-"+fmt.Sprintf("%02d", i)))
-		// opts = append(opts, kgo.DefaultProduceTopic("6-TOPIC-"+fmt.Sprintf("%02d", i)))
 		go worker(opts, produceJobs, &wg, ctx, produceType, ratePerSecond, interval, quickstart, messageBytes, limitPerSecond, jitter)
 	}
 
@@ -232,21 +202,17 @@ func worker(opts []kgo.Opt, jobs <-chan int, wg *sync.WaitGroup, ctx context.Con
 // Interval Producer
 func produceInterval(client *kgo.Client, ctx context.Context, interval int, quickStart string, messageBytes int, jitter float64) {
 	interval = makeRatePerSecondJitter(PRODUCE_INTERVAL, interval, jitter)
-	latencyStart := time.Now()
 	message := makeMessage(quickStart, messageBytes)
+
+	latencyStart := time.Now()
 	client.Produce(ctx, message, func(r *kgo.Record, err error) {
 		if err != nil {
 			Log.Error(fmt.Sprintln(err))
 			panic(err)
 		}
 	})
-
-	latencyEnd := time.Now()
-	latency := latencyEnd.Sub(latencyStart)
-
-	mu.Lock()
-	arrLatency = append(arrLatency, latency)
-	mu.Unlock()
+	elapsed := time.Since(latencyStart)
+	checkElapsedLatency(elapsed)
 
 	time.Sleep(time.Duration(interval) * time.Millisecond)
 }
@@ -269,13 +235,8 @@ func produceRatePerSecond(client *kgo.Client, ctx context.Context, ratePerSecond
 				panic(err)
 			}
 		})
-
-		latencyEnd := time.Now()
-		latency := latencyEnd.Sub(latencyStart)
-
-		mu.Lock()
-		arrLatency = append(arrLatency, latency)
-		mu.Unlock()
+		elapsed := time.Since(latencyStart)
+		checkElapsedLatency(elapsed)
 
 		if index%ratePerSecond == 0 {
 			waitEnd := time.Now()
@@ -310,13 +271,8 @@ func produceLimitPerSecond(client *kgo.Client, ctx context.Context, limitPerSeco
 					}
 				})
 				bytesSent += len(message.Key) + len(message.Value)
-
-				latencyEnd := time.Now()
-				latency := latencyEnd.Sub(latencyStart)
-
-				mu.Lock()
-				arrLatency = append(arrLatency, latency)
-				mu.Unlock()
+				elapsed := time.Since(latencyStart)
+				checkElapsedLatency(elapsed)
 			}
 		}
 	}
