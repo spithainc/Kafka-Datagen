@@ -12,12 +12,20 @@ The distinctive features of Datagen include:
 - Ability to specify the desired amount of messages to be produced per second
 
 
-## Build
+## Build from source
+
+This is the version for the build.
+
+```
+Docker version 25.0
+Go version 1.21
+```
 
 Datagen uses Docker to ensure the same build environment. If Docker is installed, you can build it using the following command.
 
 ```bash
 make build
+./datagen --config datagen.yaml
 ```
 
 
@@ -58,8 +66,10 @@ docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DAT
   - This setting allows you to set the amount of data per second. It can be used in conjunction with the `quickstart` and `message-bytes` settings. If set to 500, for example, it will generate 500 pieces of data.
 
 ### Message Type (Choose one)
-- datagen.quickstart and datagen.message-bytes
-  - Each setting specifies the type of message. In the case of quickstart, it generates messages randomly in the specified format. In the case of message-bytes, it specifies the size of the message to be produced. The two settings are about the data that generates messages and cannot be used simultaneously.
+- datagen.quickstart 
+  - If you use this option, it sends a random message to Kafka. The available options are (user, book, car, address, contact, movie, job).
+- datagen.message-bytes
+  - This setting determines the byte size of a message. If you write 100, it specifies 100 bytes per message.
 
 
 ## Docker Environment Settings 
