@@ -28,9 +28,9 @@ COPY --from=builder /src/docker-entrypoint.sh ./
 COPY --from=builder /src/config ./config
 
 ## Default Setting
-ENV BOOTSTRAP_SERVER=localhost:9092
+ENV BOOTSTRAP__SERVER=localhost:9092
 ENV TOPIC_PARTITION=3
-ENV TOPIC_REPLICA_FACTOR=1
-ENV DATAGEN_GO_ROUTINE=1
+ENV TOPIC_REPLICA__FACTOR=1
+ENV DATAGEN_GO__ROUTINE=1
 
 ENTRYPOINT ["./docker-entrypoint.sh"]

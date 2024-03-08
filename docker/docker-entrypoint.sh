@@ -8,7 +8,7 @@
 set -e
 umask 0002
 
-/config/gomplate -f /config/in/datagen.yaml.tmpl -o /config/datagen.yaml
+echo ${!DATAGEN*} ${!TOPIC*} ${!PRODUCER*} ${!BOOTSTRAP*} | /config/gomplate -d config=stdin: -f /config/in/datagen.yaml.tmpl -o /config/datagen.yaml
 
 ## execute
 umask 0755 && exec /app/datagen -config=/config/datagen.yaml

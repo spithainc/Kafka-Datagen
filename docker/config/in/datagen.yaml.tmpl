@@ -1,98 +1,38 @@
-{{- $bootstrapServer := env.Getenv "BOOTSTRAP_SERVER"}}
+{{ $config := datasource "config" -}}
 
-{{- $producerMaxMessageBytes := env.Getenv "PRODUCER_MAX_MESSAGE_BYTES"}}
-{{- $producerLingers := env.Getenv "PRODUCER_LINGERS"}}
-{{- $producerCompressionType := env.Getenv "PRODUCER_COMPRESSION_TYPE"}}
-{{- $producerClientId := env.Getenv "PRODUCER_CLIENT_ID"}}
+{{ $envs := strings.Split " " $config -}}
+{{ $tmparray := slice "" -}}
+{{ range $envs -}}
+{{ $item := . | strings.Trim " \n" -}}
+{{ $tmparray = append $item $tmparray -}}
+{{ end -}}
+{{ $envs := $tmparray | coll.Sort -}}
 
-{{- $producerSaslMechanism := env.Getenv "PRODUCER_SASL_MECHANISM"}}
-{{- $producerSaslUsername := env.Getenv "PRODUCER_SASL_USERNAME"}}
-{{- $producerSaslPassword := env.Getenv "PRODUCER_SASL_PASSWORD"}}
-{{- $producerSaslAwsAccessKeyId := env.Getenv "PRODUCER_SASL_AWS_ACCESS_KEY_ID"}}
-{{- $producerSaslAwsSecretAccessKey := env.Getenv "PRODUCER_SASL_AWS_SECRET_ACCESS_KEY"}}
-{{- $producerSaslClientId := env.Getenv "PRODUCER_SASL_CLIENT_ID"}}
-{{- $producerSaslClientSecret := env.Getenv "PRODUCER_SASL_CLIENT_SECRET"}}
-{{- $producerSaslTokenEndPoint := env.Getenv "PRODUCER_SASL_TOKEN_ENDPOINT"}}
+{{ $keyMaps := coll.Dict }}
 
-{{- $producerTlsCafile := env.Getenv "PRODUCER_TLS_CAFILE"}}
-{{- $producerTlsCertfile := env.Getenv "PRODUCER_TLS_CERTFILE"}}
-{{- $producerTlsKeyfile := env.Getenv "PRODUCER_TLS_KEYFILE"}}
-{{- $producerTlsSkipVerify := env.Getenv "PRODUCER_TLS_SKIPVERIFY"}}
+{{ range $idenxenv, $env := $envs }}
+{{- if eq $idenxenv 0 }}{{continue}}{{end}}
+{{- $kebabEnv := $env | strings.ReplaceAll "__" "-" }}
+{{- $keys := split $kebabEnv "_" -}}
+{{- $value := env.Getenv $env -}}
 
-## Kafka settings
-bootstrap-server: {{$bootstrapServer}}
-producer:
-  {{- if $producerMaxMessageBytes }}
-  max-message-bytes: {{$producerMaxMessageBytes}}
-  {{- end}}
-  {{- if $producerLingers }}
-  lingers: {{$producerLingers}}
-  {{- end}}
-  {{- if $producerCompressionType }}
-  compression-type: {{$producerCompressionType}}
-  {{- end}}
-  {{- if $producerClientId }}
-  client-id: {{$producerClientId}}
-  {{- end}}
-  {{- if $producerSaslMechanism }}
-  sasl:
-    {{- if or (eq $producerSaslMechanism "SCRAM-SHA-512") (eq $producerSaslMechanism "SCRAM-SHA-256") (eq $producerSaslMechanism "PLAIN") }}
-    mechanism: {{$producerSaslMechanism}}
-    username: {{$producerSaslUsername}}
-    password: {{$producerSaslPassword}}
-    {{- end }}
-    {{- if eq $producerSaslMechanism "AWS_MSK_IAM" }}
-    aws-access-key-id: {{$producerSaslAwsAccessKeyId}}
-    aws-secret-access-key: {{$producerSaslAwsSecretAccessKey}}
-    {{- end }}
-    {{- if eq $producerSaslMechanism "OAUTHBEARER" }}
-    client-id: {{$producerSaslClientId}}
-    client-secret: {{$producerSaslClientSecret}}
-    token-endpoint: {{$producerSaslTokenEndPoint}}
-    {{- end }}
-  {{ if $producerTlsCafile }}
-  tls:
-    cafile: {{$producerTlsCafile}}
-    certfile: {{$producerTlsCertfile}}
-    keyfile: {{$producerTlsKeyfile}}
-    skipverify: {{$producerTlsSkipVerify}}
-  {{- end}}
-  {{- end}}
+{{- $combineKey := "" }}
+{{- range $index, $key := $keys -}}
+    {{- if eq $index 0 -}}
+        {{ $combineKey = print $combineKey $key }}
+    {{- else -}}
+        {{ $combineKey = print $combineKey "_" $key }}
+    {{- end -}}
 
-{{- $topicName := env.Getenv "TOPIC_NAME"}}
-{{- $topicPartition := env.Getenv "TOPIC_PARTITION"}}
-{{- $topicReplicaFactor := env.Getenv "TOPIC_REPLICA_FACTOR"}}
+    {{- if eq (index $keyMaps $combineKey) $index -}}
+            {{ continue }}
+    {{- end -}}
 
-## Topic settings
-topic: 
-  name: {{$topicName}}
-  partition: {{$topicPartition}}
-  replica-factor: {{$topicReplicaFactor}}
+    {{- $keyMap := coll.Dict $combineKey $index }}
+    {{- $keyMaps = merge $keyMap $keyMaps }}
 
-{{- $datagenQuickStart := env.Getenv "DATAGEN_QUICKSTART"}}
-{{- $datagenMessageBytes := env.Getenv "DATAGEN_MESSAGE_BYTES"}}
-{{- $datagenGoRoutine := env.Getenv "DATAGEN_GO_ROUTINE"}}
-
-{{- $datagenRatePerSecond := env.Getenv "DATAGEN_RATE_PER_SECOND"}}
-{{- $datagenJitter := env.Getenv "DATAGEN_JITTER"}}
-{{- $datagenInterval := env.Getenv "DATAGEN_INTERVAL"}}
-{{- $datagenLimitDataAmountPerSecond := env.Getenv "DATAGEN_LIMIT_DATA_AMOUNT_PER_SECOND"}}
-
-## Datagen settings
-datagen:
-  {{- if $datagenQuickStart }}
-  quickstart: {{$datagenQuickStart}}
-  {{- else if $datagenMessageBytes }}
-  message-bytes: {{$datagenMessageBytes}}
-  {{- end}}
-  go-routine: {{$datagenGoRoutine}}
-  {{- if $datagenRatePerSecond }}
-  rate-per-second: {{$datagenRatePerSecond}}
-    {{- if $datagenRatePerSecond }}
-  jitter: {{$datagenJitter}}
-    {{- end}}
-  {{- else if $datagenInterval }}
-  interval: {{$datagenInterval}}
-  {{- else if $datagenLimitDataAmountPerSecond }}
-  limit-data-amount-per-second : {{$datagenLimitDataAmountPerSecond}}
-  {{- end}}
+    {{- $space := conv.Atoi (mul $index 2) -}}
+    {{- $key = printf "%s%s" $key ":" -}}
+    {{ $key | strings.Indent $space | strings.ToLower }} {{ if eq  ($keys | len) (add $index 1) }}{{ $value }} {{ end }}
+{{ end }}
+{{- end }}

@@ -75,51 +75,53 @@ docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DAT
 ## Docker Environment Settings 
 
 ### Datagen Producer Settings 
-| Docker Envronment             | YAML                          | Description                                 | Default Value   | type   |
+| Docker Environment            | YAML                          | Description                                 | Default Value   | type   |
 |-------------------------------|-------------------------------|---------------------------------------------|-----------------|--------|
-| `BOOTSTRAP_SERVER`            | bootstrap-server              | Kafka broker address                        |        -        | string |
-| `PRODUCER_MAX_MESSAGE_BYTES`  | producer.max-message-bytes    | Producer `max.message.bytes` setting        |        -        | int    |
+| `BOOTSTRAP__SERVER`           | bootstrap-server              | Kafka broker address                        |        -        | string |
+| `PRODUCER_MAX__MESSAGE__BYTES`| producer.max-message-bytes    | Producer `max.message.bytes` setting        |        -        | int    |
 | `PRODUCER_LINGERS`            | producer.lingers              | Producer `lingers` setting                  |        -        | int    |
-| `PRODUCER_COMPRESSION_TYPE`   | producer.compression-type     | Producer compression setting                |        -        | string |
-| `PRODUCER_CLIENT_ID`          | producer.client-id            | Producer clieit id setting                  |        -        | string |
+| `PRODUCER_COMPRESSION__TYPE`  | producer.compression-type     | Producer compression setting                |        -        | string |
+| `PRODUCER_CLIENT__ID`         | producer.client-id            | Producer client id setting                  |        -        | string |
+
 
 ### Datagen Producer Authentication
-| Docker Envronment                     | YAML                                | Description                                                                   | Default Value   | type   |
-|---------------------------------------|-------------------------------------|-------------------------------------------------------------------------------|-----------------|--------|
-| `PRODUCER_SASL_MECHANISM`             | producer.sasl.mechanism             | Producer authentication mechanism setting                                     |        -        | string |
-| `PRODUCER_SASL_USERNAME`              | producer.sasl.username              | User setting according to SCRAM,PLAIN authentication mechanism                |        -        | string |
-| `PRODUCER_SASL_PASSWORD`              | producer.sasl.password              | User password setting according to SCRAM,PLAIN authentication mechanism       |        -        | string |
-| `PRODUCER_SASL_AWS_ACCESS_KEY_ID`     | producer.sasl.aws-access-key-id     | `aws-access-key-id` setting according to AWS authentication mechanism         |        -        | string |
-| `PRODUCER_SASL_AWS_SECRET_ACCESS_KEY` | producer.sasl.aws-secret-access-key | `aws-secret-access-key` setting according to AWS authentication mechanism     |        -        | string |
-| `PRODUCER_SASL_CLIENT_ID`             | producer.sasl.client-id             | `client-id` setting according to OAUTHBEARER authentication mechanism         |        -        | string |
-| `PRODUCER_SASL_CLIENT_SECRET`         | producer.sasl.client-secret         | `client-secret` setting according to OAUTHBEARER authentication mechanism     |        -        | string |
-| `PRODUCER_SASL_TOKEN_ENDPOINT`        | producer.sasl.token-endpoint        | `token-endpoint` setting according to OAUTHBEARER authentication mechanism    |        -        | string |
+| Docker Environment                          | YAML                                | Description                                                                   | Default Value   | type   |
+|---------------------------------------------|-------------------------------------|-------------------------------------------------------------------------------|-----------------|--------|
+| `PRODUCER_SASL__MECHANISM`                  | producer.sasl.mechanism             | Producer authentication mechanism setting                                     |        -        | string |
+| `PRODUCER_SASL__USERNAME`                   | producer.sasl.username              | User setting according to SCRAM,PLAIN authentication mechanism                |        -        | string |
+| `PRODUCER_SASL__PASSWORD`                   | producer.sasl.password              | User password setting according to SCRAM,PLAIN authentication mechanism       |        -        | string |
+| `PRODUCER_SASL_AWS__ACCESS__KEY__ID`        | producer.sasl.aws-access-key-id     | `aws-access-key-id` setting according to AWS authentication mechanism         |        -        | string |
+| `PRODUCER_SASL_AWS__SECRET__ACCESS__KEY`    | producer.sasl.aws-secret-access-key | `aws-secret-access-key` setting according to AWS authentication mechanism     |        -        | string |
+| `PRODUCER_SASL__CLIENT__ID`                 | producer.sasl.client-id             | `client-id` setting according to OAUTHBEARER authentication mechanism         |        -        | string |
+| `PRODUCER_SASL__CLIENT__SECRET`             | producer.sasl.client-secret         | `client-secret` setting according to OAUTHBEARER authentication mechanism     |        -        | string |
+| `PRODUCER_SASL__TOKEN__ENDPOINT`            | producer.sasl.token-endpoint        | `token-endpoint` setting according to OAUTHBEARER authentication mechanism    |        -        | string |
 
 ### Datagen Producer Tls
-| Docker Envronment               | YAML                          | Description                             | Default Value   | type   |
-|---------------------------------|-------------------------------|-----------------------------------------|-----------------|--------|
-| `PRODUCER_TLS_CAFILE`           | producer.tls.cafile           | TLS CAFile registration                 |        -        | string |
-| `PRODUCER_TLS_CERTFILE`         | producer.tls.certfile         | TLS CertFile registration               |        -        | string |
-| `PRODUCER_TLS_KEYFILE`          | producer.tls.keyfile          | TLS KeyFile registration                |        -        | string |
-| `PRODUCER_TLS_SKIPVERIFY`       | producer.tls.skipverify       | TLS Skipverify setting                  |        -        | bool   |
+| Docker Environment                | YAML                          | Description                             | Default Value   | type   |
+|-----------------------------------|-------------------------------|-----------------------------------------|-----------------|--------|
+| `PRODUCER_TLS__CAFILE`            | producer.tls.cafile           | TLS CAFile registration                 |        -        | string |
+| `PRODUCER_TLS__CERTFILE`          | producer.tls.certfile         | TLS CertFile registration               |        -        | string |
+| `PRODUCER_TLS__KEYFILE`           | producer.tls.keyfile          | TLS KeyFile registration                |        -        | string |
+| `PRODUCER_TLS__SKIPVERIFY`        | producer.tls.skipverify       | TLS Skipverify setting                  |        -        | bool   |
 
 ### Topic 
-| Docker Envronment          | YAML                          | Description                                | Default Value   | type   |
-|----------------------------|-------------------------------|--------------------------------------------|-----------------|--------|
-| `TOPIC_NAME`               | topic.name                    | Topic name                                 |        -        | string |
-| `TOPIC_PARTITION`          | topic.partition               | Number of partitions (at initial creation) | 3               | int    |
-| `TOPIC_REPLICA_FACTOR`     | topic.replica-factor          | Number of replicas (at initial creation)   | 1               | int    |
+| Docker Envronment           | YAML                          | Description                                | Default Value   | type   |
+|-----------------------------|-------------------------------|--------------------------------------------|-----------------|--------|
+| `TOPIC_NAME`                | topic.name                    | Topic name                                 |        -        | string |
+| `TOPIC_PARTITION`           | topic.partition               | Number of partitions (at initial creation) | 3               | int    |
+| `TOPIC_REPLICA__FACTOR`     | topic.replica-factor          | Number of replicas (at initial creation)   | 1               | int    |
 
 ### Datagen
-| Docker Envronment                         | YAML                                 | Description                                                                          | Default Value   | type   |
-|-------------------------------------------|--------------------------------------|--------------------------------------------------------------------------------------|-----------------|--------|
-| `DATAGEN_QUICKSTART`                      | datagen.quickstart                   | Data generation `quickstart` setting (user, book, car, address, contact, movie, job) |        -        | string |
-| `DATAGEN_MESSAGE_BYTES`                   | datagen.message-bytes                | Setting for `message-bytes` generated per entry                                      | 100             | string |
-| `DATAGEN_GO_ROUTINE`                      | datagen.go-routine                   | Setting for the number of `go-routine`                                               | 1               | int    |
-| `DATAGEN_JITTER`                          | datagen.jitter                       | It creates jitter for a specified producer type.                                     |        -        | float  |
-| `DATAGEN_RATE_PER_SECOND`                 | datagen.rate-per-second              | Setting for the number of messages per second in `rate-per-second`                   |        -        | int    |
-| `DATAGEN_INTERVAL`                        | datagen.interval                     | Setting for message transmission interval in `interval`                              | 0               | int    |
-| `DATAGEN_LIMIT_DATA_AMOUNT_PER_SECOND`    | datagen.limit-data-amount-per-second | Adjusting the limit of message amount per second in `limit-data-amount-per-second`   |        -        | int    |
+| Docker Environment                           | YAML                                   | Description                                                                          | Default Value   | type   |
+|----------------------------------------------|----------------------------------------|--------------------------------------------------------------------------------------|-----------------|--------|
+| `DATAGEN_QUICKSTART`                         | datagen.quickstart                     | Data generation `quickstart` setting (user, book, car, address, contact, movie, job) |        -        | string |
+| `DATAGEN_MESSAGE__BYTES`                     | datagen.message-bytes                  | Setting for `message-bytes` generated per entry                                      | 100             | string |
+| `DATAGEN_GO__ROUTINE`                        | datagen.go-routine                     | Setting for the number of `go-routine`                                               | 1               | int    |
+| `DATAGEN_JITTER`                             | datagen.jitter                         | It creates jitter for a specified producer type.                                     |        -        | float  |
+| `DATAGEN_RATE__PER__SECOND`                  | datagen.rate-per-second                | Setting for the number of messages per second in `rate-per-second`                   |        -        | int    |
+| `DATAGEN_INTERVAL`                           | datagen.interval                       | Setting for message transmission interval in `interval`                              | 0               | int    |
+| `DATAGEN_LIMIT__DATA__AMOUNT__PER__SECOND`   | datagen.limit-data-amount-per-second   | Adjusting the limit of message amount per second in `limit-data-amount-per-second`   |        -        | int    |
+
 
 
 # License
