@@ -2,10 +2,8 @@ name: kafka-datagen
 
 on:
   push:
-    branches: []
     tags: [ 'v*.*.*' ]
-  pull_request:
-    branches: []
+  pull_request: []
 
 jobs:
   docker_build_and_push:
