@@ -87,9 +87,9 @@ docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DAT
 ### Datagen Producer Authentication
 | Docker Environment                     | YAML                                    | Default Value | type   | Description                                               |
 |----------------------------------------|-----------------------------------------|---------------|--------|-----------------------------------------------------------|
-| PRODUCER_SASL__MECHANISM               | producer.sasl.mechanism                 | -             | string | Producer authentication mechanism setting                 |
-| PRODUCER_SASL__USERNAME                | producer.sasl.username                  | -             | string | User setting according to SCRAM,PLAIN mechanism           |
-| PRODUCER_SASL__PASSWORD                | producer.sasl.password                  | -             | string | User password setting according to SCRAM,PLAIN mechanism  |
+| PRODUCER_SAS_MECHANISM               | producer.sasl.mechanism                 | -             | string | Producer authentication mechanism setting                 |
+| PRODUCER_SASL_USERNAME                | producer.sasl.username                  | -             | string | User setting according to SCRAM,PLAIN mechanism           |
+| PRODUCER_SASL_PASSWORD                | producer.sasl.password                  | -             | string | User password setting according to SCRAM,PLAIN mechanism  |
 | PRODUCER_SASL_AWS__ACCESS__KEY__ID     | producer.sasl.aws-access-key-id         | -             | string | aws-access-key-id setting according to AWS mechanism      |
 | PRODUCER_SASL_AWS__SECRET__ACCESS__KEY | producer.sasl.aws-secret-access-key     | -             | string | aws-secret-access-key setting according to AWS mechanism  |
 | PRODUCER_SASL__CLIENT__ID              | producer.sasl.client-id                 | -             | string | client-id setting according to OAUTHBEARER mechanism      |
