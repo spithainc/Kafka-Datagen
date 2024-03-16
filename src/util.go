@@ -22,18 +22,22 @@ var (
 
 func metricTicker(ticker *time.Ticker) {
 	for range ticker.C {
-		Log.Info(fmt.Sprintln("min latency : ", MinLatency))
-		Log.Info(fmt.Sprintln("max latency : ", MaxLatency))
-		Log.Info(fmt.Sprintln("avg latency : ", TotalTime/time.Duration(MessageNumber)))
-		Log.Info(fmt.Sprintln("number messages : ", MessageNumber))
-		fmt.Println()
+		if MessageNumber != 0 {
+			Log.Info(fmt.Sprintln("min latency : ", MinLatency))
+			Log.Info(fmt.Sprintln("max latency : ", MaxLatency))
+			Log.Info(fmt.Sprintln("avg latency : ", TotalTime/time.Duration(MessageNumber)))
+			Log.Info(fmt.Sprintln("number messages : ", MessageNumber))
+			fmt.Println()
 
-		// init values
-		MinLatency = time.Duration(int64(1<<63 - 1))
-		MaxLatency = 0
-		AvgLatency = 0
-		MessageNumber = 0
-		TotalTime = 0
+			// init values
+			MinLatency = time.Duration(int64(1<<63 - 1))
+			MaxLatency = 0
+			AvgLatency = 0
+			MessageNumber = 0
+			TotalTime = 0
+		} else {
+			Log.Info(fmt.Sprintln("number messages : ", 0))
+		}
 	}
 }
 
