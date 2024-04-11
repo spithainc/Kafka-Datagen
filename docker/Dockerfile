@@ -27,6 +27,10 @@ COPY --from=builder /src/datagen ./app
 COPY --from=builder /src/docker-entrypoint.sh ./
 COPY --from=builder /src/config ./config
 
+## dir permissions
+RUN chgrp -R 0 /config /datagen ; \
+    chmod -R g+rwX /config /datagen
+
 ## Default Setting
 ENV BOOTSTRAP__SERVER=localhost:9092
 ENV TOPIC_PARTITION=3
