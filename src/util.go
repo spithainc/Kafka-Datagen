@@ -99,32 +99,53 @@ func makeRatePerSecondJitter(producerType int, defaultValue int, jitterRate floa
 }
 
 func makeMessage(quickStart string, messageByte int) *kgo.Record {
-	var valueData interface{}
+	var msgValue interface{}
+	var msgKey interface{}
 	switch quickStart {
 	case "user":
-		valueData = gofakeit.Person()
+		randomData := gofakeit.Person()
+		msgValue = randomData
+		msgKey = randomData.FirstName
 	case "book":
-		valueData = gofakeit.Book()
+		randomData := gofakeit.Book()
+		msgValue = randomData
+		msgKey = randomData.Genre
 	case "car":
-		valueData = gofakeit.Car()
+		randomData := gofakeit.Car()
+		msgValue = randomData
+		msgKey = randomData.Brand
 	case "address":
-		valueData = gofakeit.Address()
+		randomData := gofakeit.Address()
+		msgValue = randomData
+		msgKey = randomData.Country
 	case "contact":
-		valueData = gofakeit.Contact()
+		randomData := gofakeit.Contact()
+		msgValue = randomData
+		msgKey = randomData.Email
 	case "movie":
-		valueData = gofakeit.Movie()
+		randomData := gofakeit.Movie()
+		msgValue = randomData
+		msgKey = randomData.Genre
 	case "job":
-		valueData = gofakeit.Job()
+		randomData := gofakeit.Job()
+		msgValue = randomData
+		msgKey = randomData.Title
 	default:
 		return kgo.SliceRecord(make([]byte, messageByte))
 	}
-	byteData, err := json.Marshal(valueData)
+	msgByteValue, err := json.Marshal(msgValue)
+	if err != nil {
+		Log.Error(fmt.Sprintln(err))
+		return &kgo.Record{}
+	}
+	msgByteKey, err := json.Marshal(msgKey)
 	if err != nil {
 		Log.Error(fmt.Sprintln(err))
 		return &kgo.Record{}
 	}
 	return &kgo.Record{
-		Value:     byteData,
+		Key:       msgByteKey,
+		Value:     msgByteValue,
 		Timestamp: time.Now(),
 	}
 }
