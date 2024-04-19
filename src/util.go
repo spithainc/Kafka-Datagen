@@ -1,15 +1,18 @@
 package src
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/twmb/franz-go/pkg/kadm"
 	"github.com/twmb/franz-go/pkg/kgo"
+	"github.com/twmb/franz-go/pkg/sr"
 )
 
 var (
@@ -20,6 +23,53 @@ var (
 	MessageNumber uint64        = 0
 )
 
+/**********************************************************************
+**                                                                   **
+**                            Check Topic                            **
+**                                                                   **
+***********************************************************************/
+func checkTopic(ctx context.Context, opts []kgo.Opt) error {
+	var adminClient *kadm.Client
+	client, err := kgo.NewClient(opts...)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	adminClient = kadm.NewClient(client)
+	topicList, err := adminClient.ListTopics(ctx, Module.Topic.Name)
+	if err != nil {
+		if err != nil {
+			return err
+		}
+	}
+
+	// no topic
+	if !topicList.Has(Module.Topic.Name) {
+		partition := int32(3)     // default partition
+		replicafactor := int16(1) // default replicafactor
+		if Module.Topic.Partition != "" {
+			partition = int32(stringToInt(Module.Topic.Partition))
+		}
+		if Module.Topic.Replicafactor != "" {
+			replicafactor = int16(stringToInt(Module.Topic.Replicafactor))
+		}
+		_, err := adminClient.CreateTopic(ctx, partition, replicafactor, nil, Module.Topic.Name)
+		if err != nil {
+			return err
+		}
+		time.Sleep(time.Second)
+	}
+	client.Close()
+
+	defer client.Close()
+	return nil
+}
+
+/**********************************************************************
+**                                                                   **
+**                            Metric print                           **
+**                                                                   **
+***********************************************************************/
 func metricTicker(ticker *time.Ticker) {
 	for range ticker.C {
 		if MessageNumber != 0 {
@@ -41,6 +91,11 @@ func metricTicker(ticker *time.Ticker) {
 	}
 }
 
+/**********************************************************************
+**                                                                   **
+**                           Check latency                           **
+**                                                                   **
+***********************************************************************/
 func checkElapsedLatency(elapsed time.Duration) {
 	// min time elapsed
 	if elapsed < MinLatency {
@@ -59,12 +114,17 @@ func checkElapsedLatency(elapsed time.Duration) {
 	MessageNumber++
 }
 
+/**********************************************************************
+**                                                                   **
+**                          Jitter setting                           **
+**                                                                   **
+***********************************************************************/
 func makeRatePerSecondJitter(producerType int, defaultValue int, jitterRate float64) int {
 	if jitterRate == 0 {
 		return defaultValue
 	}
 	switch producerType {
-	case PRODUCE_INTERVAL:
+	case PRODUCE_TYPE_INTERVAL:
 		min := defaultValue - int((jitterRate)*float64(defaultValue))
 		max := defaultValue + int((jitterRate)*float64(defaultValue))
 		diff := max - min
@@ -74,7 +134,7 @@ func makeRatePerSecondJitter(producerType int, defaultValue int, jitterRate floa
 			return 1
 		}
 		return result
-	case PRODUCE_RATE_PER_SEC:
+	case PRODUCE_TYPE_RATE_PER_SEC:
 		min := defaultValue - int((jitterRate)*float64(defaultValue))
 		max := defaultValue + int((jitterRate)*float64(defaultValue))
 		diff := max - min
@@ -84,7 +144,7 @@ func makeRatePerSecondJitter(producerType int, defaultValue int, jitterRate floa
 			return 1
 		}
 		return result
-	case PRODUCE_LIMIT_DATA_AMOUNT_PER_SEC:
+	case PRODUCE_TYPE_LIMIT_DATA_AMOUNT_PER_SEC:
 		min := defaultValue - int((jitterRate)*float64(defaultValue))
 		max := defaultValue + int((jitterRate)*float64(defaultValue))
 		diff := max - min
@@ -98,58 +158,84 @@ func makeRatePerSecondJitter(producerType int, defaultValue int, jitterRate floa
 	return defaultValue
 }
 
-func makeMessage(quickStart string, messageByte int) *kgo.Record {
+/**********************************************************************
+**                                                                   **
+**                            Gen Message                            **
+**                                                                   **
+***********************************************************************/
+func makeMessage(produceSettings *ProduceSettings, serde *sr.Serde) *kgo.Record {
 	var msgValue interface{}
 	var msgKey interface{}
-	switch quickStart {
-	case "user":
-		randomData := gofakeit.Person()
-		msgValue = randomData
-		msgKey = randomData.FirstName
-	case "book":
-		randomData := gofakeit.Book()
-		msgValue = randomData
-		msgKey = randomData.Genre
-	case "car":
-		randomData := gofakeit.Car()
-		msgValue = randomData
-		msgKey = randomData.Brand
-	case "address":
-		randomData := gofakeit.Address()
-		msgValue = randomData
-		msgKey = randomData.Country
-	case "contact":
-		randomData := gofakeit.Contact()
-		msgValue = randomData
-		msgKey = randomData.Email
-	case "movie":
-		randomData := gofakeit.Movie()
-		msgValue = randomData
-		msgKey = randomData.Genre
-	case "job":
-		randomData := gofakeit.Job()
-		msgValue = randomData
-		msgKey = randomData.Title
-	default:
-		return kgo.SliceRecord(make([]byte, messageByte))
+
+	if produceSettings.MessageType == MESSAGE_TYPE_QUICKSTART {
+		switch produceSettings.MessageSettings.Quickstart {
+		case "user":
+			randomData := makeRandomPerson()
+			msgValue = randomData
+			msgKey = randomData.FirstName
+		case "book":
+			randomData := makeRandomBook()
+			msgValue = randomData
+			msgKey = randomData.Genre
+		case "car":
+			randomData := makeRandomCar()
+			msgValue = randomData
+			msgKey = randomData.Brand
+		case "address":
+			randomData := makeRandomAddress()
+			msgValue = randomData
+			msgKey = randomData.Country
+		case "contact":
+			randomData := makeRandomContact()
+			msgValue = randomData
+			msgKey = randomData.Email
+		case "movie":
+			randomData := makeRandomMovie()
+			msgValue = randomData
+			msgKey = randomData.Genre
+		case "job":
+			randomData := makeRandomJob()
+			msgValue = randomData
+			msgKey = randomData.Title
+		}
+		msgByteValue, err := json.Marshal(msgValue)
+		if err != nil {
+			Log.Error(fmt.Sprintln(err))
+			return &kgo.Record{}
+		}
+		msgByteKey, err := json.Marshal(msgKey)
+		if err != nil {
+			Log.Error(fmt.Sprintln(err))
+			return &kgo.Record{}
+		}
+
+		// schema registry
+		if Module.Producer.SchemaRegistry.Server.Urls != "" {
+			return &kgo.Record{
+				Key:       msgByteKey,
+				Value:     serde.MustEncode(msgValue),
+				Timestamp: time.Now(),
+			}
+		}
+
+		return &kgo.Record{
+			Key:       msgByteKey,
+			Value:     msgByteValue,
+			Timestamp: time.Now(),
+		}
+	} else if produceSettings.MessageType == MESSAGE_TYPE_MESSAGE_BYTES {
+		return kgo.SliceRecord(make([]byte, produceSettings.MessageSettings.MessageBytes)) // use message byte
 	}
-	msgByteValue, err := json.Marshal(msgValue)
-	if err != nil {
-		Log.Error(fmt.Sprintln(err))
-		return &kgo.Record{}
-	}
-	msgByteKey, err := json.Marshal(msgKey)
-	if err != nil {
-		Log.Error(fmt.Sprintln(err))
-		return &kgo.Record{}
-	}
-	return &kgo.Record{
-		Key:       msgByteKey,
-		Value:     msgByteValue,
-		Timestamp: time.Now(),
-	}
+
+	return &kgo.Record{}
+
 }
 
+/**********************************************************************
+**                                                                   **
+**                            Type utils                             **
+**                                                                   **
+***********************************************************************/
 func stringToInt(value string) int {
 	i, err := strconv.Atoi(value)
 	if err != nil {
@@ -169,39 +255,115 @@ func stringToFloat64(value string) float64 {
 	return i
 }
 
-func findMinDuration(durations []time.Duration) time.Duration {
-	if len(durations) == 0 {
-		return 0
-	}
-	min := durations[0]
-	for _, duration := range durations {
-		if duration < min {
-			min = duration
-		}
-	}
-	return min
+/**********************************************************************
+**                                                                   **
+**                      Schema Registry utils                        **
+**                                                                   **
+***********************************************************************/
+// avroTypeMap maps Go types to AVRO types.
+var avroTypeMap = map[reflect.Kind]string{
+	reflect.String:  "string",
+	reflect.Int:     "int",
+	reflect.Int32:   "int",
+	reflect.Int64:   "long",
+	reflect.Float32: "float",
+	reflect.Float64: "double",
+	reflect.Bool:    "boolean",
 }
 
-func findMaxDuration(durations []time.Duration) time.Duration {
-	if len(durations) == 0 {
-		return 0
+// generate avro schema for schema registry temlpate
+func generateAvroSchema(schemaTemplate string, src interface{}) (string, error) {
+	schema, err := generateFieldSchema(reflect.TypeOf(src))
+	if err != nil {
+		return "", err
 	}
-	max := durations[0]
-	for _, duration := range durations {
-		if duration > max {
-			max = duration
-		}
+
+	// schema template json parsing
+	var template map[string]interface{}
+	if err := json.Unmarshal([]byte(schemaTemplate), &template); err != nil {
+		return "", err
 	}
-	return max
+
+	// add fileds
+	template["fields"] = schema
+
+	// schema to json
+	schemaBytes, err := json.Marshal(template)
+	if err != nil {
+		return "", err
+	}
+
+	return string(schemaBytes), nil
 }
 
-func findAverageDuration(durations []time.Duration) time.Duration {
-	if len(durations) == 0 {
-		return 0
+func generateFieldSchema(t reflect.Type) ([]map[string]interface{}, error) {
+	if t.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("source is not a struct")
 	}
-	var total time.Duration
-	for _, duration := range durations {
-		total += duration
+
+	var fields []map[string]interface{}
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		fieldType := field.Type
+
+		var avroType interface{}
+		if fieldType.Kind() == reflect.Ptr {
+			fieldType = fieldType.Elem()
+		}
+
+		if fieldType.Kind() == reflect.Struct {
+			// 중첩된 구조체를 재귀적으로 처리합니다.
+			nestedFields, err := generateFieldSchema(fieldType)
+			if err != nil {
+				return nil, err
+			}
+			avroType = map[string]interface{}{
+				"type":   "record",
+				"name":   fieldType.Name(),
+				"fields": nestedFields,
+			}
+		} else {
+			// 기본 타입을 처리합니다.
+			var exists bool
+			avroType, exists = avroTypeMap[fieldType.Kind()]
+			if !exists {
+				return nil, fmt.Errorf("unsupported field type: %s", fieldType.Name())
+			}
+		}
+		fieldName := field.Tag.Get("json")
+		if fieldName == "" {
+			fieldName = field.Name
+		}
+		fields = append(fields, map[string]interface{}{"name": fieldName, "type": avroType})
 	}
-	return total / time.Duration(len(durations))
+
+	return fields, nil
+}
+
+/**********************************************************************
+**                                                                   **
+**                            Check Params                           **
+**                                                                   **
+***********************************************************************/
+func checkParams(p ...interface{}) bool {
+	count := 0
+	for _, param := range p {
+		switch v := param.(type) {
+		case int, float64:
+			if v != 0 {
+				count++
+				if count > 1 {
+					return false
+				}
+			}
+		case string:
+			if v != "" {
+				count++
+				if count > 1 {
+					return false
+				}
+			}
+		}
+	}
+	return count == 1
 }

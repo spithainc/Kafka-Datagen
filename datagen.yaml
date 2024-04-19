@@ -1,18 +1,36 @@
 ## Kafka settings
-bootstrap-server: 172.17.25.40:9092
+bootstrap-server: 172.17.25.20:9093
 producer:
+  schema-registry:
+    server:
+      urls: 172.17.25.31:8081
+      username: admin
+      password: 123456
+    subject: shan-job
+    type: avro
   compression-type: uncompressed
   client-id: test
+  sasl:
+    mechanism: SCRAM-SHA-512
+    username: admin
+    password: admin-secret
+
 
 ## Topic settings
 topic: 
-  name: TOPIC01
+  name: shan-schema-registry-avro3
 
 ## Datagen settings
 ## Limit Data Amount Per Sec 
 datagen:
-  quickstart: book
+  
+  ### proudce type
   interval: 100
-  message-bytes: 100
+  # limit-data-amount-per-second : 10000000
+  # rate-per-second: 5
+
+  ### message type
+  quickstart: job
+  # message-bytes: 100
   # jitter: 0.5
   go-routine: 1

@@ -21,6 +21,11 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
+/**********************************************************************
+**                                                                   **
+**                        SASL, SSL setting                          **
+**                                                                   **
+***********************************************************************/
 func auth(opts []kgo.Opt) ([]kgo.Opt, error) {
 	/**
 	 * SASL Value Settings
@@ -129,6 +134,11 @@ func auth(opts []kgo.Opt) ([]kgo.Opt, error) {
 	return opts, nil
 }
 
+/**********************************************************************
+**                                                                   **
+**                         Kerberos support                          **
+**                                                                   **
+***********************************************************************/
 // GSSAPI
 func getKerberosClient(configPath string, keyTabPath string, username string, realm string) (*client.Client, error) {
 	// Kerberos 클라이언트 구성 생성
@@ -153,7 +163,11 @@ func getKerberosClient(configPath string, keyTabPath string, username string, re
 	return krbClient, err
 }
 
-// TLS Setting
+/**********************************************************************
+**                                                                   **
+**                            Mutual Tls                             **
+**                                                                   **
+***********************************************************************/
 func newTLSConfig(clientCertFile, clientKeyFile, caCertFile string, insecureSkipVerify bool) (*tls.Config, error) {
 	tlsConfig := tls.Config{}
 
@@ -177,7 +191,11 @@ func newTLSConfig(clientCertFile, clientKeyFile, caCertFile string, insecureSkip
 	return &tlsConfig, err
 }
 
-// TLS Setting
+/**********************************************************************
+**                                                                   **
+**                            Tls only CA                            **
+**                                                                   **
+***********************************************************************/
 func newTLSConfigOnlyCa(caCertFile string, insecureSkipVerify bool) (*tls.Config, error) {
 	tlsConfig := tls.Config{}
 

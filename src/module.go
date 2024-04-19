@@ -2,6 +2,11 @@ package src
 
 var Module *ConfigModule
 
+/**********************************************************************
+**                                                                   **
+**                       Read external config                        **
+**                                                                   **
+***********************************************************************/
 // In order to handle empty values, a string format is necessary, since the default value for integers is 0.
 type ConfigModule struct {
 	BootstrapServer string         `yaml:"bootstrap-server"`
@@ -15,7 +20,16 @@ type ProducerModule struct {
 	Lingers         string `yaml:"lingers"`
 	CompressionType string `yaml:"compression-type"`
 	ClientId        string `yaml:"client-id"` // producer client-id
-	Sasl            struct {
+	SchemaRegistry  struct {
+		Server struct {
+			Urls     string `yaml:"urls"`
+			Username string `yaml:"username"`
+			Password string `yaml:"password"`
+		} `yaml:"server"`
+		Subject string `yaml:"subject"`
+		Type    string `yaml:"type"`
+	} `yaml:"schema-registry"`
+	Sasl struct {
 		Mechanism          string `yaml:"mechanism"` // sasl, plain
 		Username           string `yaml:"username"`
 		Password           string `yaml:"password"`

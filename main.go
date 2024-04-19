@@ -75,6 +75,7 @@ func main() {
 	}
 	src.Log.Info("Successfully loaded configuration file")
 
+	// read config
 	viper.SetConfigFile(filename)
 	readErr := viper.ReadInConfig() // Find and read the config file
 	if readErr != nil {             // Handle errors reading the config file
