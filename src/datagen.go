@@ -221,65 +221,69 @@ func Datagen() {
 			panic(err)
 		}
 
-		// schema template
-		var schemaTemplate = `{
-				"type": "record",
-				"name": "datagen_spitha",
-				"namespace": "org.datagen.spitha.io",
-				"fields" : []
-			}`
-		var schemaSrc interface{}
-		switch produceSettings.MessageSettings.Quickstart {
-		case "user":
-			schemaSrc = PersonInfo{}
-		case "book":
-			schemaSrc = BookInfo{}
-		case "car":
-			schemaSrc = CarInfo{}
-		case "address":
-			schemaSrc = AddressInfo{}
-		case "contact":
-			schemaSrc = ContactInfo{}
-		case "movie":
-			schemaSrc = MovieInfo{}
-		case "job":
-			schemaSrc = JobInfo{}
-		}
+		if Module.Producer.SchemaRegistry.Type == "avro" {
+			// avro
+			// schema template
+			var schemaTemplate = `{
+					"type": "record",
+					"name": "datagen_spitha",
+					"namespace": "datagen.spitha.io",
+					"fields" : []
+				}`
+			var schemaSrc interface{}
+			switch produceSettings.MessageSettings.Quickstart {
+			case "user":
+				schemaSrc = PersonInfo{}
+			case "book":
+				schemaSrc = BookInfo{}
+			case "car":
+				schemaSrc = CarInfo{}
+			case "address":
+				schemaSrc = AddressInfo{}
+			case "contact":
+				schemaSrc = ContactInfo{}
+			case "movie":
+				schemaSrc = MovieInfo{}
+			case "job":
+				schemaSrc = JobInfo{}
+			}
 
-		// add quickstart field
-		schema, err := generateAvroSchema(schemaTemplate, schemaSrc)
-		if err != nil {
-			Log.Error(fmt.Sprintln("Error generating schema:", err))
-			panic(err)
-		}
+			// add quickstart field
+			schema, err := generateAvroSchema(schemaTemplate, schemaSrc)
+			if err != nil {
+				Log.Error(fmt.Sprintln("Error generating schema:", err))
+				panic(err)
+			}
 
-		// find schema in schema registry
-		schemaRegistrySchema, err := schemaRegistryClient.CreateSchema(context.Background(), Module.Producer.SchemaRegistry.Subject, sr.Schema{
-			Schema: schema,
-			Type:   sr.TypeAvro,
-		})
-		if err != nil {
-			panic(err)
-		}
-		Log.Info(fmt.Sprintf("created or reusing schema subject %q version %d id %d\n", schemaRegistrySchema.Subject, schemaRegistrySchema.Version, schemaRegistrySchema.ID))
+			Log.Debug(schema)
+			// find schema in schema registry
+			schemaRegistrySchema, err := schemaRegistryClient.CreateSchema(context.Background(), Module.Producer.SchemaRegistry.Subject, sr.Schema{
+				Schema: schema,
+				Type:   sr.TypeAvro,
+			})
+			if err != nil {
+				panic(err)
+			}
+			Log.Info(fmt.Sprintf("created or reusing schema subject %q version %d id %d\n", schemaRegistrySchema.Subject, schemaRegistrySchema.Version, schemaRegistrySchema.ID))
 
-		// avro parse
-		avroSchema, err := avro.Parse(schema)
-		if err != nil {
-			panic(err)
-		}
+			// avro parse
+			avroSchema, err := avro.Parse(schema)
+			if err != nil {
+				panic(err)
+			}
 
-		// serde register
-		serde.Register(
-			schemaRegistrySchema.ID,
-			schemaSrc,
-			sr.EncodeFn(func(v any) ([]byte, error) {
-				return avro.Marshal(avroSchema, v)
-			}),
-			sr.DecodeFn(func(b []byte, v any) error {
-				return avro.Unmarshal(avroSchema, b, v)
-			}),
-		)
+			// serde register
+			serde.Register(
+				schemaRegistrySchema.ID,
+				schemaSrc,
+				sr.EncodeFn(func(v any) ([]byte, error) {
+					return avro.Marshal(avroSchema, v)
+				}),
+				sr.DecodeFn(func(b []byte, v any) error {
+					return avro.Unmarshal(avroSchema, b, v)
+				}),
+			)
+		}
 	}
 
 	/*******************************

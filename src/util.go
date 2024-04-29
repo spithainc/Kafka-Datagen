@@ -312,7 +312,6 @@ func generateFieldSchema(t reflect.Type) ([]map[string]interface{}, error) {
 		}
 
 		if fieldType.Kind() == reflect.Struct {
-			// 중첩된 구조체를 재귀적으로 처리합니다.
 			nestedFields, err := generateFieldSchema(fieldType)
 			if err != nil {
 				return nil, err
@@ -323,7 +322,6 @@ func generateFieldSchema(t reflect.Type) ([]map[string]interface{}, error) {
 				"fields": nestedFields,
 			}
 		} else {
-			// 기본 타입을 처리합니다.
 			var exists bool
 			avroType, exists = avroTypeMap[fieldType.Kind()]
 			if !exists {
