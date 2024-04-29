@@ -260,16 +260,6 @@ func stringToFloat64(value string) float64 {
 **                      Schema Registry utils                        **
 **                                                                   **
 ***********************************************************************/
-// avroTypeMap maps Go types to AVRO types.
-var avroTypeMap = map[reflect.Kind]string{
-	reflect.String:  "string",
-	reflect.Int:     "int",
-	reflect.Int32:   "int",
-	reflect.Int64:   "long",
-	reflect.Float32: "float",
-	reflect.Float64: "double",
-	reflect.Bool:    "boolean",
-}
 
 // generate avro schema for schema registry temlpate
 func generateAvroSchema(schemaTemplate string, src interface{}) (string, error) {
@@ -297,6 +287,18 @@ func generateAvroSchema(schemaTemplate string, src interface{}) (string, error) 
 }
 
 func generateFieldSchema(t reflect.Type) ([]map[string]interface{}, error) {
+
+	// avroTypeMap maps Go types to AVRO types.
+	var avroTypeMap = map[reflect.Kind]string{
+		reflect.String:  "string",
+		reflect.Int:     "int",
+		reflect.Int32:   "int",
+		reflect.Int64:   "long",
+		reflect.Float32: "float",
+		reflect.Float64: "double",
+		reflect.Bool:    "boolean",
+	}
+
 	if t.Kind() != reflect.Struct {
 		return nil, fmt.Errorf("source is not a struct")
 	}
