@@ -28,8 +28,7 @@ COPY --from=builder /src/docker-entrypoint.sh ./
 COPY --from=builder /src/config ./config
 
 ## dir permissions
-RUN mkdir /logs ; \
-    chgrp -R 0 /config /app ; \
+RUN chgrp -R 0 /config /app /logs ; \
     chmod -R g+rwX /config /app /logs
 
 ## Default Setting
