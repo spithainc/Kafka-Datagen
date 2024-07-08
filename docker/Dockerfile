@@ -28,8 +28,9 @@ COPY --from=builder /src/docker-entrypoint.sh ./
 COPY --from=builder /src/config ./config
 
 ## dir permissions
-RUN chgrp -R 0 /config /app ; \
-    chmod -R g+rwX /config /app
+RUN mkdir /logs ; \
+    chgrp -R 0 /config /app ; \
+    chmod -R g+rwX /config /app /logs
 
 ## Default Setting
 ENV BOOTSTRAP__SERVER=localhost:9092
