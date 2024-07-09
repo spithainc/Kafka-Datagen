@@ -3,6 +3,7 @@ package src
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -254,8 +255,8 @@ func Datagen() {
 				Log.Error(fmt.Sprintln("Error generating schema:", err))
 				panic(err)
 			}
-
 			Log.Debug(schema)
+
 			// find schema in schema registry
 			schemaRegistrySchema, err := schemaRegistryClient.CreateSchema(context.Background(), Module.Producer.SchemaRegistry.Subject, sr.Schema{
 				Schema: schema,
@@ -283,6 +284,9 @@ func Datagen() {
 					return avro.Unmarshal(avroSchema, b, v)
 				}),
 			)
+		} else {
+			Log.Info("Currently, only the Avro type is supported.")
+			os.Exit(1)
 		}
 	}
 
