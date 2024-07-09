@@ -1,12 +1,12 @@
 ## Kafka settings
-bootstrap-server: 172.17.25.20:9093
+bootstrap-server: localhost:9093
 producer:
   schema-registry:
     server:
-      urls: 172.17.25.31:8081
+      urls: localhost:8081
       username: admin
-      password: 123456
-    subject: shan-user
+      password: sradmin
+    subject: schema-registry-name
     type: avro
   compression-type: uncompressed
   client-id: test
@@ -18,7 +18,7 @@ producer:
 
 ## Topic settings
 topic: 
-  name: shan-schema-registry-avro3
+  name: schema-registry-topic
 
 ## Datagen settings
 ## Limit Data Amount Per Sec 
