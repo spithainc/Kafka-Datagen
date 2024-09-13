@@ -38,9 +38,10 @@ services:
   kafka-datagen:
     image: spitharepo/kafka-datagen:latest
     environment:
-      BOOTSTRAP_SERVER: localhost:9092
+      BOOTSTRAP__SERVER: localhost:9092
       TOPIC_NAME: datagen-users
-      DATAGEN_LIMIT_DATA_AMOUNT_PER_SECOND: 10000
+      DATAGEN_RATE__PER__SECOND: 100
+      DATAGEN_QUICKSTART: user
 ```
 
 ```bash
@@ -87,7 +88,7 @@ docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DAT
 ### Datagen Producer Authentication
 | Docker Environment                     | YAML                                    | Default Value | type   | Description                                               |
 |----------------------------------------|-----------------------------------------|---------------|--------|-----------------------------------------------------------|
-| PRODUCER_SAS_MECHANISM               | producer.sasl.mechanism                 | -             | string | Producer authentication mechanism setting                 |
+| PRODUCER_SASL_MECHANISM               | producer.sasl.mechanism                 | -             | string | Producer authentication mechanism setting                 |
 | PRODUCER_SASL_USERNAME                | producer.sasl.username                  | -             | string | User setting according to SCRAM,PLAIN mechanism           |
 | PRODUCER_SASL_PASSWORD                | producer.sasl.password                  | -             | string | User password setting according to SCRAM,PLAIN mechanism  |
 | PRODUCER_SASL_AWS__ACCESS__KEY__ID     | producer.sasl.aws-access-key-id         | -             | string | aws-access-key-id setting according to AWS mechanism      |
