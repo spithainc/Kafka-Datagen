@@ -14,7 +14,7 @@ import (
 	"github.com/twmb/franz-go/plugin/kzap"
 )
 
-// produce, message type
+// produce, message type, quickstart
 const (
 	PRODUCE_TYPE_INTERVAL                  = 0
 	PRODUCE_TYPE_RATE_PER_SEC              = 1
@@ -22,6 +22,14 @@ const (
 
 	MESSAGE_TYPE_QUICKSTART    = 0
 	MESSAGE_TYPE_MESSAGE_BYTES = 1
+
+	QUICKSTART_USER    = "user"
+	QUICKSTART_BOOK    = "book"
+	QUICKSTART_CAR     = "car"
+	QUICKSTART_ADDRESS = "address"
+	QUICKSTART_CONTACT = "contact"
+	QUICKSTART_MOVIE   = "movie"
+	QUICKSTART_JOB     = "job"
 )
 
 type ProduceSettings struct {
@@ -169,10 +177,17 @@ func Datagen() {
 	********************************/
 	produceSettings.MessageType = MESSAGE_TYPE_MESSAGE_BYTES             // default message type
 	produceSettings.MessageSettings.MessageBytes = DEFAULT_MESSAGE_BYTES // default quickstart
+
+	// quickstart
 	if Module.Datagen.QuickStart != "" {
 		produceSettings.MessageSettings.Quickstart = Module.Datagen.QuickStart
 		produceSettings.MessageType = MESSAGE_TYPE_QUICKSTART
+		if Module.Datagen.QuickStart != QUICKSTART_USER && Module.Datagen.QuickStart != QUICKSTART_BOOK && Module.Datagen.QuickStart != QUICKSTART_CAR && Module.Datagen.QuickStart != QUICKSTART_CONTACT && Module.Datagen.QuickStart != QUICKSTART_JOB && Module.Datagen.QuickStart != QUICKSTART_MOVIE && Module.Datagen.QuickStart != QUICKSTART_ADDRESS {
+			panic("The quickstart option is limited to the following options: user, book, car, address, contact, movie, and job.")
+		}
 	}
+
+	// message bytes
 	if Module.Datagen.MessageBytes != "" {
 		produceSettings.MessageSettings.MessageBytes = stringToInt(Module.Datagen.MessageBytes)
 		opts = append(opts, kgo.MaxBufferedRecords(250<<20/produceSettings.MessageSettings.MessageBytes+1))
@@ -233,19 +248,19 @@ func Datagen() {
 				}`
 			var schemaSrc interface{}
 			switch produceSettings.MessageSettings.Quickstart {
-			case "user":
+			case QUICKSTART_USER:
 				schemaSrc = PersonInfo{}
-			case "book":
+			case QUICKSTART_BOOK:
 				schemaSrc = BookInfo{}
-			case "car":
+			case QUICKSTART_CAR:
 				schemaSrc = CarInfo{}
-			case "address":
+			case QUICKSTART_ADDRESS:
 				schemaSrc = AddressInfo{}
-			case "contact":
+			case QUICKSTART_CONTACT:
 				schemaSrc = ContactInfo{}
-			case "movie":
+			case QUICKSTART_MOVIE:
 				schemaSrc = MovieInfo{}
-			case "job":
+			case QUICKSTART_JOB:
 				schemaSrc = JobInfo{}
 			}
 

@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/twmb/franz-go/pkg/kadm"
@@ -169,31 +170,31 @@ func makeMessage(produceSettings *ProduceSettings, serde *sr.Serde) *kgo.Record 
 
 	if produceSettings.MessageType == MESSAGE_TYPE_QUICKSTART {
 		switch produceSettings.MessageSettings.Quickstart {
-		case "user":
+		case QUICKSTART_USER:
 			randomData := makeRandomPerson()
 			msgValue = randomData
 			msgKey = randomData.FirstName
-		case "book":
+		case QUICKSTART_BOOK:
 			randomData := makeRandomBook()
 			msgValue = randomData
 			msgKey = randomData.Genre
-		case "car":
+		case QUICKSTART_CAR:
 			randomData := makeRandomCar()
 			msgValue = randomData
 			msgKey = randomData.Brand
-		case "address":
+		case QUICKSTART_ADDRESS:
 			randomData := makeRandomAddress()
 			msgValue = randomData
 			msgKey = randomData.Country
-		case "contact":
+		case QUICKSTART_CONTACT:
 			randomData := makeRandomContact()
 			msgValue = randomData
 			msgKey = randomData.Email
-		case "movie":
+		case QUICKSTART_MOVIE:
 			randomData := makeRandomMovie()
 			msgValue = randomData
 			msgKey = randomData.Genre
-		case "job":
+		case QUICKSTART_JOB:
 			randomData := makeRandomJob()
 			msgValue = randomData
 			msgKey = randomData.Title
@@ -224,7 +225,7 @@ func makeMessage(produceSettings *ProduceSettings, serde *sr.Serde) *kgo.Record 
 			Timestamp: time.Now(),
 		}
 	} else if produceSettings.MessageType == MESSAGE_TYPE_MESSAGE_BYTES {
-		return kgo.SliceRecord(make([]byte, produceSettings.MessageSettings.MessageBytes)) // use message byte
+		return kgo.SliceRecord([]byte(strings.Repeat("A", produceSettings.MessageSettings.MessageBytes)))
 	}
 
 	return &kgo.Record{}
