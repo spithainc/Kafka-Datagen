@@ -1,10 +1,11 @@
 ARG VERSION=0.0.1
 
 ## FROM BUILDER
-FROM golang:1.21-alpine as builder
+FROM golang:1.23-alpine as builder
 
 ARG VERSION
 
+RUN apk update && apk upgrade --no-cache
 RUN apk add upx bash
 
 WORKDIR /src
@@ -16,7 +17,6 @@ COPY ./docker-entrypoint.sh .
 
 # Build Golang
 RUN go mod tidy && env GOOS=linux GARCH=amd64 CGO_ENABLED=0 go build -v -a -ldflags="-s -w" -o datagen
-RUN upx --best --lzma datagen
 
 ## RUNNER
 FROM alpine

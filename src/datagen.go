@@ -223,7 +223,7 @@ func Datagen() {
 	var serde sr.Serde
 	if Module.Producer.SchemaRegistry.Server.Urls != "" && Module.Datagen.QuickStart != "" { // only quickstart
 		Log.Info("use schema registry")
-		srOpts := []sr.Opt{}
+		srOpts := []sr.ClientOpt{}
 		srOpts = append(srOpts, sr.URLs(Module.Producer.SchemaRegistry.Server.Urls))
 
 		// basic auth

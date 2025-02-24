@@ -1,20 +1,49 @@
 ## Kafka settings
-bootstrap-server: 
+bootstrap-server: {BROKER_ADDRESS}
 producer:
   compression-type: uncompressed
   client-id: test
+  # schema-registry:
+  #   server:
+  #     urls: {SCHEMA_REGISTRY_ADDRESS}
+  #     username: {USERNAME}
+  #     password: {PASSWORD}
+  #   subject: {SUBJECT}
+  #   type: avro # only support avro
+  # sasl:
+    ## SCRAM, PLAIN
+    # mechanism: SCRAM-SHA-512
+    # username: {USERNAME}
+    # password: {PASSWORD}
+    ## AWS_MSK_IAM
+    # mechanism: AWS_MSK_IAM
+    # aws-access-key-id: {AWS_ACCESS_KEY_ID}
+    # aws-secret-access-key: {AWS_SECRET_ACCESS_KEY}
+    ## OAUTHBEARER
+    # mechanism: OAUTHBEARER
+    # client-id:  {CLIENT_ID}
+    # client-secret: {CLIENT_SECRET}
+    # token-endpoint: {TOKEN_ENDPOINT}
+  # tls:
+  #   cafile:  {CA_FILE}
+  #   certfile: {CERT_FILE}
+  #   keyfile: {KEY_FILE}
+  #   skipverify: true
 
 ## Topic settings
 topic: 
-  name: TOPIC01
+  name: {TOPIC_NAME}
+  # partition: 6
+  # replica-factor: 2
 
 ## Datagen settings
 ## Limit Data Amount Per Sec 
 datagen:
   # rate-per-second: 3000
   # limit-data-amount-per-second: 50000000
-  # quickstart: car
-  # interval: 0
-  message-bytes: 100
+  quickstart: car
+  interval: 500
+  # message-bytes: 100
   # jitter: 0.5
   go-routine: 1
+

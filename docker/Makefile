@@ -5,6 +5,7 @@ TARGET := $(shell cat ./TARGET)
 ## build arg
 BUILD_ARGS := --no-cache --force-rm 
 BUILD_ARGS += --build-arg VERSION=$(VERSION)
+BUILD_ARGS += --build-arg VERSION=$(VERSION)
 
 DOCKER = docker
 
@@ -34,4 +35,7 @@ dist: $(TARGET)-docker.tar
 	--transform 's,^,$(TARGET)-docker_$(VERSION)/,' \
 	./$(TARGET)-docker.tar ./load_docker-image.sh
 
+scan:
+	@echo "Scanning $(TARGET):$(VERSION) for vulnerabilities..."
+	trivy image $(TARGET):$(VERSION)
 
