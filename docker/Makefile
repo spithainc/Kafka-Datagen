@@ -19,9 +19,18 @@ copy-source-files:
 
 docker: copy-source-files
 	DOCKER_BUILDKIT=1 $(DOCKER) build \
+	--no-cache \
 	$(BUILD_ARGS) \
 	-t "$(TARGET):latest" \
 	-t "$(TARGET):$(VERSION)" \
+	./
+
+dockerhub: copy-source-files
+	DOCKER_BUILDKIT=1 $(DOCKER) buildx build \
+	--no-cache --provenance=true --sbom=true --push \
+	$(BUILD_ARGS) \
+	-t "spitharepo/$(TARGET):latest" \
+	-t "spitharepo/$(TARGET):$(VERSION)" \
 	./
 
 $(TARGET)-docker.tar: docker

@@ -1,12 +1,12 @@
 ARG VERSION=0.0.1
 
 ## FROM BUILDER
-FROM golang:1.23-alpine as builder
+FROM golang:1.23-alpine AS builder
 
 ARG VERSION
 
 RUN apk update && apk upgrade --no-cache
-RUN apk add upx bash
+RUN apk add bash
 
 WORKDIR /src
 
