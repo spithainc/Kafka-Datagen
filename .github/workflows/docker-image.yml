@@ -23,7 +23,15 @@ jobs:
         VERSION=`cat ./VERSION`
         SVERSION=`echo $VERSION | cut -d'.' -f1-2`
         MVERSION=`echo $VERSION | cut -d'.' -f1`
-        make -C docker dockerhub
+        make -C docker docker
+        docker tag $REPO:latest $NAME/$REPO:latest
+        docker tag $REPO:latest $NAME/$REPO:$VERSION
+        docker tag $REPO:latest $NAME/$REPO:$SVERSION
+        docker tag $REPO:latest $NAME/$REPO:$MVERSION
+        docker push $NAME/$REPO:$VERSION
+        docker push $NAME/$REPO:$SVERSION
+        docker push $NAME/$REPO:$MVERSION
+        docker push $NAME/$REPO:latest
         
   release_build_and_push:
     runs-on: ubuntu-latest
