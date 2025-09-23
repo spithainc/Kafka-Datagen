@@ -6,8 +6,8 @@ producer:
       urls: localhost:8081
       username: admin
       password: sradmin
-    subject: schema-registry-name
-    type: avro
+    subject: subject-name
+    type: protobuf
   compression-type: uncompressed
   client-id: test
   sasl:
@@ -18,19 +18,15 @@ producer:
 
 ## Topic settings
 topic: 
-  name: schema-registry-topic
+  name: datagen-sr-protobuf
 
 ## Datagen settings
 ## Limit Data Amount Per Sec 
 datagen:
-  
-  ### proudce type
-  interval: 100
-  # limit-data-amount-per-second : 10000000
-  # rate-per-second: 5
-
-  ### message type
-  quickstart: user
-  # message-bytes: 100
-  # jitter: 0.5
   go-routine: 1
+  produce:
+    mode: rate-per-second
+    rate-per-second: 10
+  message:
+    mode: quickstart
+    quickstart: user

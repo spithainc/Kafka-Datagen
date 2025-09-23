@@ -7,6 +7,7 @@ toolchain go1.23.4
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/fsnotify/fsnotify v1.8.0
+	github.com/golang/protobuf v1.5.3
 	github.com/hamba/avro/v2 v2.28.0
 	github.com/jcmturner/gokrb5/v8 v8.4.4
 	github.com/jinzhu/copier v0.4.0
@@ -26,7 +27,6 @@ require (
 require github.com/magiconair/properties v1.8.9 // indirect
 
 require (
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
@@ -54,8 +54,7 @@ require (
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

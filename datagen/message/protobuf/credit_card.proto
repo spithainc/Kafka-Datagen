@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package spitha.events;
+option go_package = "message/protobuf";
+
+message CreditCardInfo {
+  string type   = 1;
+  string number = 2;
+  string exp    = 3;
+  string cvv    = 4;
+}

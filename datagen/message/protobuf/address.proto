@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package spitha.events;
+option go_package = "message/protobuf";
+
+message AddressInfo {
+  string address   = 1;
+  string street    = 2;
+  string city      = 3;
+  string state     = 4;
+  string zip       = 5;
+  string country   = 6;
+  double latitude  = 7;
+  double longitude = 8;
+}

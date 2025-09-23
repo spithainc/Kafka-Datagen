@@ -2,6 +2,8 @@
 bootstrap-server: localhost:9092
 producer:
   compression-type: uncompressed
+  client-id: clientId
+  transactional-id: transactionId
 
 ## Topic settings
 topic: 

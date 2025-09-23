@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package spitha.events;
+option go_package = "message/protobuf";
+
+message ContactInfo {
+  string phone = 1;
+  string email = 2;
+}

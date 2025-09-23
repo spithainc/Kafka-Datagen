@@ -37,13 +37,19 @@ topic:
   # replica-factor: 2
 
 ## Datagen settings
-## Limit Data Amount Per Sec 
+## Limit Data Amount Per Sec  
 datagen:
-  # rate-per-second: 3000
-  # limit-data-amount-per-second: 50000000
-  quickstart: car
-  interval: 500
-  # message-bytes: 100
-  # jitter: 0.5
   go-routine: 1
+  jitter: 0.5
+  produce:
+    mode: interval # rate-per-second,limit-data-amount-per-second
+    interval: 500
+    # rate-per-second: 3000
+    # limit-data-amount-per-second: 50000000
+  message:
+    mode: quickstart # message-bytes
+    quickstart: car
+    # message-bytes: 100
+  
+  
 

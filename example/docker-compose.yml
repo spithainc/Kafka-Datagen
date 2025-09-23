@@ -1,7 +1,10 @@
 services:
   kafka-datagen:
-    image: kafka-datagen:latest
+    image: spitharepo/kafka-datagen:latest
     environment:
-      BOOTSTRAP__SERVER: 172.17.25.40:9092
-      TOPIC_NAME: shan-test
-      DATAGEN_LIMIT__DATA__AMOUNT__PER__SECOND: 1000
+      BOOTSTRAP__SERVER: localhost:9092
+      TOPIC_NAME: datagen-users
+      DATAGEN_PRODUCE_MODE: rate-per-second
+      DATAGEN_PRODUCE_RATE__PER__SECOND: 100
+      DATAGEN_MESSAGE_MODE: quickstart
+      DATAGEN_MESSAGE_QUICKSTART: user

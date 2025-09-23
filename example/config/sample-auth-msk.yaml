@@ -8,7 +8,7 @@ producer:
 
 ## Topic settings
 topic: 
-  name: datagen-users
+  name: datagen-users-msk-iam
   partition: 3
   replica-factor: 1
 
@@ -17,3 +17,12 @@ datagen:
   quickstart: users
   go-routine: 1
   rate-per-second: 10
+
+datagen:
+  go-routine: 1
+  produce:
+    mode: rate-per-second
+    rate-per-second: 10
+  message:
+    mode: quickstart
+    quickstart: user

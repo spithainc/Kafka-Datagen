@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package spitha.events;
+option go_package = "message/protobuf";
+
+message MovieInfo {
+  string name = 1;
+  string genre = 2;
+}

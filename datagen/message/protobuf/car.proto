@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package spitha.events;
+option go_package = "message/protobuf";
+
+message CarInfo {
+  string type         = 1;
+  string fuel         = 2;
+  string transmission = 3;
+  string brand        = 4;
+  string model        = 5;
+  int64  year         = 6; 
+}

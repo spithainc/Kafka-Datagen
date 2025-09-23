@@ -21,12 +21,16 @@ producer:
 
 ## Topic settings
 topic: 
-  name: datagen-users
+  name: datagen-users-ssl
   partition: 3
   replica-factor: 1
 
 ## Datagen settings
 datagen:
-  quickstart: users
   go-routine: 1
-  rate-per-second: 10
+  produce:
+    mode: rate-per-second
+    rate-per-second: 10
+  message:
+    mode: quickstart
+    quickstart: user

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package spitha.events;
+option go_package = "message/protobuf";
+
+message JobInfo {
+  string company = 1;
+  string title = 2;
+  string descriptor = 3;
+  string level = 4;
+}

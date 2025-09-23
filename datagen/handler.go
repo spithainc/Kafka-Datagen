@@ -1,23 +1,24 @@
-package src
+package datagen
 
 import (
-	"time"
-
-	"go.uber.org/zap"
+	"spitha/datagen/datagen/config"
+	"spitha/datagen/datagen/logger"
+	"spitha/datagen/datagen/producer"
 )
-
-var Log *zap.Logger
 
 /**********************************************************************
 **                                                                   **
 **                               Handler                             **
 **                                                                   **
 ***********************************************************************/
-func Handler() {
-	// ticker
-	ticker := time.NewTicker(1 * time.Second)
-	go metricTicker(ticker)
+func Handler(configPath string) {
+
+	// Init logger
+	logger.InitLogger()
+
+	// Init config
+	config := config.InitConfig(configPath)
 
 	// datagen
-	Datagen()
+	producer.Datagen(config)
 }

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package spitha.events;
+option go_package = "message/protobuf";
+
+message BookInfo {
+  string title  = 1;
+  string author = 2;
+  string genre  = 3;
+}

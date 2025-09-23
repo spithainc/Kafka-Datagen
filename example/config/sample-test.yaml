@@ -17,7 +17,7 @@ producer:
 
 ## Topic settings
 topic: 
-  name: shan-datagen-test2
+  name: datagen-test
   partition: 6
   replica-factor: 2
 
@@ -43,4 +43,10 @@ topic:
 
 ## Limit Data Amount Per Sec 
 datagen:
-  limit-data-amount-per-second : 10000000
+  go-routine: 1
+  produce:
+    mode: rate-per-second
+    rate-per-second: 10
+  message:
+    mode: quickstart
+    quickstart: user

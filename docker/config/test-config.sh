@@ -42,7 +42,7 @@ export DATAGEN_MESSAGE__BYTES=100
 export DATAGEN_GO__ROUTINE=1
 export DATAGEN_RATE__PER__SECOND=100
 export DATAGEN_INTERVAL=100
-export DATAGEN_LIMIT__DATA__AMOUNT__PER__SECOND=100000
+export DATAGEN_DATA_RATE_LIMIT_BPS=100000
 
 # ./gomplate -f ./in/datagen.yaml.tmpl -o ./datagen.yaml
 

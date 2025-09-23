@@ -40,36 +40,33 @@ services:
     environment:
       BOOTSTRAP__SERVER: localhost:9092
       TOPIC_NAME: datagen-users
-      DATAGEN_RATE__PER__SECOND: 100
-      DATAGEN_QUICKSTART: user
+      DATAGEN_PRODUCE_MODE
+      DATAGEN_PRODUCE_RATE__PER__SECOND: 100
+      DATAGEN_MESSAGE_MODE:
+      DATAGEN_MESSAGE_QUICKSTART: user
+      
 ```
 
 ```bash
 docker-compose -f example/docker-compose.yml  up -d
 ```
 
-or
-
-```bash
-docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DATAGEN_LIMIT_DATA_AMOUNT_PER_SECOND=10000 spitharepo/kafka-datagen:latest
-```
-
 
 ## Configuration Precautions
 - When generating data with Datagen, the following settings should be noted:
 
-### Produce Type (Choose one)
-- datagen.limit-data-amount-per-second
+### Produce Mode (datagen.produce.mode)
+- `data-rate-limit-bps` (datagen.produce.data-rate-limit-bps)
   - This setting limits the amount of data per second. It can be used in conjunction with the `quickstart` and `message-bytes` settings, and in case it exceeds the set byte figure, it limits the amount of data per second.
-- datagen.interval
+- `interval` (datagen.produce.interval)
   - This setting sets an interval for data transmission. It can be used in conjunction with the `quickstart` and `message-bytes` settings, and it puts an interval between each piece of data.
-- datagen.rate-per-second
+- `rate-per-second` (datagen.produce.rate-per-second)
   - This setting allows you to set the amount of data per second. It can be used in conjunction with the `quickstart` and `message-bytes` settings. If set to 500, for example, it will generate 500 pieces of data.
 
-### Message Type (Choose one)
-- datagen.quickstart 
+### Message Mode (Choose one)
+- `quickstart` (datagen.message.quickstart)
   - If you use this option, it sends a random message to Kafka. The available options are (user, book, car, address, contact, movie, job).
-- datagen.message-bytes
+- `message-bytes` (datagen.message.message-bytes)
   - This setting determines the byte size of a message. If you write 100, it specifies 100 bytes per message.
 
 
@@ -83,6 +80,7 @@ docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DAT
 | PRODUCER_LINGERS              | producer.lingers              | -             | int    | Producer lingers setting                    |
 | PRODUCER_COMPRESSION__TYPE    | producer.compression-type     | -             | string | Producer compression setting                |
 | PRODUCER_CLIENT__ID           | producer.client-id            | -             | string | Producer client id setting                  |
+| PRODUCER_TRANSACTIONAL__ID    | producer.transactional-id     | -             | string | Producer transactional id setting           |
 
 
 ### Datagen Producer Authentication
@@ -112,18 +110,18 @@ docker run -e BOOTSTRAP_SERVER=localhost:9092 -e TOPIC_NAME=datagen-users -e DAT
 | TOPIC_PARTITION               | topic.partition               | 3             | int    | Number of partitions (at initial creation) |
 | TOPIC_REPLICA__FACTOR         | topic.replica-factor          | 1             | int    | Number of replicas (at initial creation)   |
 
-### Datagen
-| Docker Environment                           | YAML                                   | Default Value   | type   | Description                                                                          |
-|----------------------------------------------|----------------------------------------|-----------------|--------|--------------------------------------------------------------------------------------|
-| DATAGEN_QUICKSTART                           | datagen.quickstart                     |        -        | string | Data generation quickstart setting (user, book, car, address, contact, movie, job)   |
-| DATAGEN_MESSAGE__BYTES                       | datagen.message-bytes                  | 100             | string | Setting for message-bytes generated per entry                                        |
-| DATAGEN_GO__ROUTINE                          | datagen.go-routine                     | 1               | int    | Setting for the number of go-routine                                                 |
-| DATAGEN_JITTER                               | datagen.jitter                         |        -        | float  | It creates jitter for a specified producer type.                                     |
-| DATAGEN_RATE__PER__SECOND                    | datagen.rate-per-second                |        -        | int    | Setting for the number of messages per second in rate-per-second                     |
-| DATAGEN_INTERVAL                             | datagen.interval                       | 0               | int    | Setting for message transmission interval in interval                                |
-| DATAGEN_LIMIT__DATA__AMOUNT__PER__SECOND     | datagen.limit-data-amount-per-second   |        -        | int    | Adjusting the limit of message amount per second in limit-data-amount-per-second     |
 
-
+| Docker Environment                               | YAML                                         | Default Value | Type   | Description                                                                           | Valid Values                                                                 |
+|--------------------------------------------------|----------------------------------------------|---------------|--------|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| DATAGEN_GO__ROUTINE                              | datagen.go-routine                           | 1             | int    | Setting for the number of go-routine                                                  | -                                                                             |
+| DATAGEN_JITTER                                   | datagen.jitter                               | -             | float  | It creates jitter for a specified producer type                                       | -                                                                             |
+| DATAGEN_PRODUCE_MODE                             | datagen.produce.mode                         | -             | string | Data generation mode setting                                                          | interval, rate-per-second, data-rate-limit-bps                       |
+| DATAGEN_PRODUCE_INTERVAL                         | datagen.produce.interval                     | -             | int    | Setting for message transmission interval in interval                                 | -                                                                             |
+| DATAGEN_PRODUCE_RATE__PER__SECOND                | datagen.produce.rate-per-second              | -             | int    | Setting for the number of messages per second in rate-per-second                      | -                                                                             |
+| DATAGEN_PRODUCE_DATA_RATE_LIMIT_BPS | datagen.produce.data-rate-limit-bps | -             | int    | Adjusting the limit of message amount per second in data-rate-limit-bps      | -                                                                             |
+| DATAGEN_MESSAGE_MODE                             | datagen.message.mode               | -             | string | Data generation message mode setting                                                  | quickstart, message-bytes                                                    |
+| DATAGEN_MESSAGE_QUICKSTART                       | datagen.message.quickstart         | -             | string | Data generation quickstart setting                                                    | user, book, car, address, contact, movie, job                                |
+| DATAGEN_MESSAGE_MESSAGE__BYTES                   | datagen.message.message-bytes      | 100           | string | Setting for message-bytes generated per entry                                         | -                                                                            |
 
 
 # License

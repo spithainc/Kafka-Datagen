@@ -1,4 +1,4 @@
-package src
+package producer
 
 import (
 	"context"
@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"spitha/datagen/datagen/config"
+	"spitha/datagen/datagen/logger"
 	"time"
 
 	"github.com/jcmturner/gokrb5/v8/client"
@@ -26,7 +28,7 @@ import (
 **                        SASL, SSL setting                          **
 **                                                                   **
 ***********************************************************************/
-func auth(opts []kgo.Opt) ([]kgo.Opt, error) {
+func auth(opts []kgo.Opt, cp config.ProducerConfig) ([]kgo.Opt, error) {
 	/**
 	 * SASL Value Settings
 	 */
@@ -43,86 +45,81 @@ func auth(opts []kgo.Opt) ([]kgo.Opt, error) {
 	/**
 	 * SASL Config Settings
 	 */
-	if Module.Producer.Sasl.Mechanism == AWS_MSK_IAM {
-		// AWS_MSK_IAM
+	switch cp.Sasl.Mechanism {
+	case AWS_MSK_IAM:
 		opts = append(opts, kgo.SASL(aws.ManagedStreamingIAM(func(ctx context.Context) (aws.Auth, error) {
 			return aws.Auth{
-				AccessKey: Module.Producer.Sasl.AwsAccessKeyId,
-				SecretKey: Module.Producer.Sasl.AwsSecretAccessKey,
+				AccessKey: cp.Sasl.AwsAccessKeyId,
+				SecretKey: cp.Sasl.AwsSecretAccessKey,
 				UserAgent: "franz-go/creds_test/v1.0.0",
 			}, nil
 		})))
 		opts = append(opts, kgo.Dialer((&tls.Dialer{NetDialer: &net.Dialer{Timeout: time.Second * time.Duration(DEFAULT_TLS_TIMEOUT_SECOND)}}).DialContext))
-	} else if Module.Producer.Sasl.Mechanism == PLAIN {
-		// PLAIN
+	case PLAIN:
 		opts = append(opts, kgo.SASL(plain.Auth{
-			User: Module.Producer.Sasl.Username,
-			Pass: Module.Producer.Sasl.Password,
+			User: cp.Sasl.Username,
+			Pass: cp.Sasl.Password,
 		}.AsMechanism()))
-	} else if Module.Producer.Sasl.Mechanism == SCRAM_SHA_256 {
-		// SCRAM-SHA-256
+	case SCRAM_SHA_256:
 		opts = append(opts, kgo.SASL(scram.Auth{
-			User: Module.Producer.Sasl.Username,
-			Pass: Module.Producer.Sasl.Password,
+			User: cp.Sasl.Username,
+			Pass: cp.Sasl.Password,
 		}.AsSha256Mechanism()))
-	} else if Module.Producer.Sasl.Mechanism == SCRAM_SHA_512 {
-		// SCRAM-SHA-512
+	case SCRAM_SHA_512:
 		opts = append(opts, kgo.SASL(scram.Auth{
-			User: Module.Producer.Sasl.Username,
-			Pass: Module.Producer.Sasl.Password,
+			User: cp.Sasl.Username,
+			Pass: cp.Sasl.Password,
 		}.AsSha512Mechanism()))
-	} else if Module.Producer.Sasl.Mechanism == OAUTHBEARER {
-		// OAUTHBEARER
+	case OAUTHBEARER:
 		o2Config := &clientcredentials.Config{
-			ClientID:     Module.Producer.Sasl.ClientId,
-			ClientSecret: Module.Producer.Sasl.ClientSecret,
-			TokenURL:     Module.Producer.Sasl.TokenEndpoint,
+			ClientID:     cp.Sasl.ClientId,
+			ClientSecret: cp.Sasl.ClientSecret,
+			TokenURL:     cp.Sasl.TokenEndpoint,
 		}
 		// get AccessToken from TokenEndpoint
 		token, err := o2Config.Token(context.Background())
 		if err != nil {
-			Log.Error(fmt.Sprintln("failed to get token :", err))
+			logger.Log.Error(fmt.Sprintln("failed to get token :", err))
 			return nil, err
 		}
 		opts = append(opts, kgo.SASL(oauth.Auth{
 			Token: token.AccessToken,
 		}.AsMechanism()))
-	} else if Module.Producer.Sasl.Mechanism == GSSAPI {
-		// GSSAPI
-		krbClient, err := getKerberosClient(Module.Producer.Sasl.KerberosConfig, Module.Producer.Sasl.KeyTab, Module.Producer.Sasl.Username, Module.Producer.Sasl.Realm)
+	case GSSAPI:
+		krbClient, err := getKerberosClient(cp.Sasl.KerberosConfig, cp.Sasl.KeyTab, cp.Sasl.Username, cp.Sasl.Realm)
 		if err != nil {
-			Log.Error(fmt.Sprintln("failed to get Kerberos Client :", err))
+			logger.Log.Error(fmt.Sprintln("failed to get Kerberos Client :", err))
 			return nil, err
 		}
 		opts = append(opts, kgo.SASL(kerberos.Auth{
 			Client:  krbClient,
-			Service: Module.Producer.Sasl.Servicename,
+			Service: cp.Sasl.Servicename,
 		}.AsMechanism()))
 	}
 
 	/**
 	 * SSL Setting
 	 */
-	var emptyModule ConfigModule
-	if Module.Producer.Tls != emptyModule.Producer.Tls {
+	var emptyModule config.ConfigConfig
+	if cp.Tls != emptyModule.Producer.Tls {
 		var tlsConfig *tls.Config
 		var err error
-		if Module.Producer.Tls.Certfile == "" || Module.Producer.Tls.Keyfile == "" || Module.Producer.Tls.Cafile != "" {
+		if cp.Tls.Certfile == "" || cp.Tls.Keyfile == "" || cp.Tls.Cafile != "" {
 			// no mutual
-			tlsConfig, err = newTLSConfigOnlyCa(Module.Producer.Tls.Cafile, Module.Producer.Tls.SkipVerify)
+			tlsConfig, err = loadTls(cp.Tls.Cafile, cp.Tls.SkipVerify)
 			if err != nil {
-				Log.Error(fmt.Sprintln(err))
+				logger.Log.Error(fmt.Sprintln(err))
 				return nil, err
 			}
-		} else if Module.Producer.Tls.Certfile != "" || Module.Producer.Tls.Keyfile != "" || Module.Producer.Tls.Cafile != "" {
+		} else if cp.Tls.Certfile != "" || cp.Tls.Keyfile != "" || cp.Tls.Cafile != "" {
 			// mutual
-			tlsConfig, err = newTLSConfig(Module.Producer.Tls.Certfile, Module.Producer.Tls.Keyfile, Module.Producer.Tls.Cafile, Module.Producer.Tls.SkipVerify)
+			tlsConfig, err = loadMutualTls(cp.Tls.Certfile, cp.Tls.Keyfile, cp.Tls.Cafile, cp.Tls.SkipVerify)
 			if err != nil {
-				Log.Error(fmt.Sprintln(err))
+				logger.Log.Error(fmt.Sprintln(err))
 				return nil, err
 			}
 		} else {
-			Log.Error(fmt.Sprintln("Tls setting is not recongnized"))
+			logger.Log.Error(fmt.Sprintln("Tls setting is not recongnized"))
 			return nil, err
 		}
 		tlsDialer := &tls.Dialer{
@@ -165,10 +162,31 @@ func getKerberosClient(configPath string, keyTabPath string, username string, re
 
 /**********************************************************************
 **                                                                   **
+**                                Tls                                **
+**                                                                   **
+***********************************************************************/
+func loadTls(caCertFile string, insecureSkipVerify bool) (*tls.Config, error) {
+	tlsConfig := tls.Config{}
+
+	// Load CA cert
+	caCert, err := os.ReadFile(caCertFile)
+	if err != nil {
+		return &tlsConfig, err
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+	tlsConfig.RootCAs = caCertPool
+	tlsConfig.InsecureSkipVerify = insecureSkipVerify
+
+	return &tlsConfig, err
+}
+
+/**********************************************************************
+**                                                                   **
 **                            Mutual Tls                             **
 **                                                                   **
 ***********************************************************************/
-func newTLSConfig(clientCertFile, clientKeyFile, caCertFile string, insecureSkipVerify bool) (*tls.Config, error) {
+func loadMutualTls(clientCertFile, clientKeyFile, caCertFile string, insecureSkipVerify bool) (*tls.Config, error) {
 	tlsConfig := tls.Config{}
 
 	// Load client cert
@@ -186,29 +204,7 @@ func newTLSConfig(clientCertFile, clientKeyFile, caCertFile string, insecureSkip
 	caCertPool := x509.NewCertPool()
 	caCertPool.AppendCertsFromPEM(caCert)
 	tlsConfig.RootCAs = caCertPool
-
-	tlsConfig.BuildNameToCertificate()
-	return &tlsConfig, err
-}
-
-/**********************************************************************
-**                                                                   **
-**                            Tls only CA                            **
-**                                                                   **
-***********************************************************************/
-func newTLSConfigOnlyCa(caCertFile string, insecureSkipVerify bool) (*tls.Config, error) {
-	tlsConfig := tls.Config{}
-
-	// Load CA cert
-	caCert, err := os.ReadFile(caCertFile)
-	if err != nil {
-		return &tlsConfig, err
-	}
-	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM(caCert)
-	tlsConfig.RootCAs = caCertPool
-
-	tlsConfig.BuildNameToCertificate()
 	tlsConfig.InsecureSkipVerify = insecureSkipVerify
+
 	return &tlsConfig, err
 }

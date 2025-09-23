@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package spitha.events;
+option go_package = "message/protobuf";
+
+message PersonInfo {
+  // --- nested types ---
+  message JobInfo {
+    string company = 1;
+    string title = 2;
+    string descriptor = 3;
+    string level = 4;
+  }
+  message AddressInfo {
+    string address   = 1;
+    string street    = 2;
+    string city      = 3;
+    string state     = 4;
+    string zip       = 5;
+    string country   = 6;
+    double latitude  = 7;
+    double longitude = 8;
+  }
+  message ContactInfo {
+    string phone = 1;
+    string email = 2;
+  }
+  message CreditCardInfo {
+    string type = 1;
+    string number = 2;
+    string exp = 3;
+    string cvv = 4;
+  }
+
+  // --- PersonInfo fields ---
+  string          first_name  = 1;
+  string          last_name   = 2;
+  string          gender      = 3;
+  string          ssn         = 4;
+  string          hobby       = 5;
+  JobInfo         job         = 6;   // nested 타입 사용
+  AddressInfo     address     = 7;
+  ContactInfo     contact     = 8;
+  CreditCardInfo  credit_card = 9;
+}

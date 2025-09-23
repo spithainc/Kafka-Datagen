@@ -1,0 +1,32 @@
+## Kafka settings
+bootstrap-server: localhost:9093
+producer:
+  schema-registry:
+    server:
+      urls: localhost:8081
+      username: admin
+      password: sradmin
+    subject: subject-name
+    type: avro
+  compression-type: uncompressed
+  client-id: test
+  sasl:
+    mechanism: SCRAM-SHA-512
+    username: admin
+    password: admin-secret
+
+
+## Topic settings
+topic: 
+  name: datagen-sr-avro
+
+## Datagen settings
+## Limit Data Amount Per Sec 
+datagen:
+  go-routine: 1
+  produce:
+    mode: rate-per-second
+    rate-per-second: 10
+  message:
+    mode: quickstart
+    quickstart: user

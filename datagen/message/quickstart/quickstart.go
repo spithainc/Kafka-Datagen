@@ -1,6 +1,8 @@
-package src
+package quickstart
 
 import (
+	"spitha/datagen/datagen/message/protobuf"
+
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/jinzhu/copier"
 )
@@ -30,11 +32,49 @@ type CreditCardInfo struct {
 }
 
 // make random person data
-func makeRandomPerson() PersonInfo {
+func MakeRandomPerson() PersonInfo {
 	var person PersonInfo
 	radomPerson := gofakeit.Person()
 	copier.Copy(&person, &radomPerson)
 	return person
+}
+
+func MakeRandomPersonForProtoBuf() *protobuf.PersonInfo {
+	p := gofakeit.Person()
+
+	return &protobuf.PersonInfo{
+		FirstName: p.FirstName,
+		LastName:  p.LastName,
+		Gender:    p.Gender,
+		Ssn:       gofakeit.SSN(),
+		Hobby:     gofakeit.Hobby(),
+		Job: &protobuf.PersonInfo_JobInfo{
+			Company:     p.Job.Company,
+			Title:       p.Job.Title,
+			Descriptor_: p.Job.Descriptor,
+			Level:       p.Job.Level,
+		},
+		Address: &protobuf.PersonInfo_AddressInfo{
+			Address:   p.Address.Address,
+			Street:    p.Address.Street,
+			City:      p.Address.City,
+			State:     p.Address.State,
+			Zip:       p.Address.Zip,
+			Country:   p.Address.Country,
+			Latitude:  p.Address.Latitude,
+			Longitude: p.Address.Longitude,
+		},
+		Contact: &protobuf.PersonInfo_ContactInfo{
+			Phone: p.Contact.Phone,
+			Email: p.Contact.Email,
+		},
+		CreditCard: &protobuf.PersonInfo_CreditCardInfo{
+			Type:   p.CreditCard.Type,
+			Number: p.CreditCard.Number,
+			Exp:    p.CreditCard.Exp,
+			Cvv:    p.CreditCard.Cvv,
+		},
+	}
 }
 
 /**********************************************************************
@@ -49,11 +89,20 @@ type BookInfo struct {
 }
 
 // make random book data
-func makeRandomBook() BookInfo {
+func MakeRandomBook() BookInfo {
 	var book BookInfo
 	radomBook := gofakeit.Book()
 	copier.Copy(&book, &radomBook)
 	return book
+}
+
+func MakeRandomBookForProtoBuf() *protobuf.BookInfo {
+	b := gofakeit.Book()
+	return &protobuf.BookInfo{
+		Title:  b.Title,
+		Author: b.Author,
+		Genre:  b.Genre,
+	}
 }
 
 /**********************************************************************
@@ -71,11 +120,23 @@ type CarInfo struct {
 }
 
 // make random car data
-func makeRandomCar() CarInfo {
+func MakeRandomCar() CarInfo {
 	var car CarInfo
 	radomCar := gofakeit.Car()
 	copier.Copy(&car, &radomCar)
 	return car
+}
+
+func MakeRandomCarForProtoBuf() *protobuf.CarInfo {
+	c := gofakeit.Car()
+	return &protobuf.CarInfo{
+		Brand:        c.Brand,
+		Fuel:         c.Fuel,
+		Model:        c.Model,
+		Transmission: c.Transmission,
+		Type:         c.Type,
+		Year:         int64(c.Year),
+	}
 }
 
 /**********************************************************************
@@ -95,11 +156,25 @@ type AddressInfo struct {
 }
 
 // make random address data
-func makeRandomAddress() AddressInfo {
+func MakeRandomAddress() AddressInfo {
 	var address AddressInfo
 	radomAddress := gofakeit.Address()
 	copier.Copy(&address, &radomAddress)
 	return address
+}
+
+func MakeRandomAddressForProtoBuf() *protobuf.AddressInfo {
+	a := gofakeit.Address()
+	return &protobuf.AddressInfo{
+		Address:   a.Address,
+		Street:    a.Street,
+		City:      a.City,
+		State:     a.State,
+		Zip:       a.Zip,
+		Country:   a.Country,
+		Latitude:  a.Latitude,
+		Longitude: a.Longitude,
+	}
 }
 
 /**********************************************************************
@@ -113,11 +188,19 @@ type ContactInfo struct {
 }
 
 // make random book data
-func makeRandomContact() ContactInfo {
+func MakeRandomContact() ContactInfo {
 	var contact ContactInfo
 	radomContact := gofakeit.Contact()
 	copier.Copy(&contact, &radomContact)
 	return contact
+}
+
+func MakeRandomContactForProtoBuf() *protobuf.ContactInfo {
+	c := gofakeit.Contact()
+	return &protobuf.ContactInfo{
+		Phone: c.Phone,
+		Email: c.Email,
+	}
 }
 
 /**********************************************************************
@@ -131,11 +214,19 @@ type MovieInfo struct {
 }
 
 // make random job data
-func makeRandomMovie() MovieInfo {
+func MakeRandomMovie() MovieInfo {
 	var movie MovieInfo
 	radomMovie := gofakeit.Movie()
 	copier.Copy(&movie, &radomMovie)
 	return movie
+}
+
+func MakeRandomMovieForProtoBuf() *protobuf.MovieInfo {
+	m := gofakeit.Movie()
+	return &protobuf.MovieInfo{
+		Name:  m.Name,
+		Genre: m.Genre,
+	}
 }
 
 /**********************************************************************
@@ -151,9 +242,19 @@ type JobInfo struct {
 }
 
 // make random job data
-func makeRandomJob() JobInfo {
+func MakeRandomJob() JobInfo {
 	var job JobInfo
 	radomJob := gofakeit.Job()
 	copier.Copy(&job, &radomJob)
 	return job
+}
+
+func MakeRandomJobForProtoBuf() *protobuf.JobInfo {
+	j := gofakeit.Job()
+	return &protobuf.JobInfo{
+		Company:     j.Company,
+		Title:       j.Title,
+		Descriptor_: j.Descriptor,
+		Level:       j.Level,
+	}
 }
