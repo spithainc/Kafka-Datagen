@@ -10,9 +10,8 @@ WORKDIR /src
 
 COPY . .
 
-RUN go mod tidy && env GOOS=linux GARCH=amd64 CGO_ENABLED=0 go build -v -a -ldflags="-s -w" -o datagen
-RUN upx --best --lzma datagen
+RUN go mod tidy && env GOOS=linux GARCH=amd64 CGO_ENABLED=0 go build -v -a -ldflags="-s -w" -o spitha-datagen
 
 FROM scratch as exporter
 
-COPY --from=builder /src/datagen ./
+COPY --from=builder /src/spitha-datagen ./spitha-datagen
