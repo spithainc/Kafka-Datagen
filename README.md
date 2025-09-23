@@ -40,9 +40,9 @@ services:
     environment:
       BOOTSTRAP__SERVER: localhost:9092
       TOPIC_NAME: datagen-users
-      DATAGEN_PRODUCE_MODE
+      DATAGEN_PRODUCE_MODE: rate-per-second
       DATAGEN_PRODUCE_RATE__PER__SECOND: 100
-      DATAGEN_MESSAGE_MODE:
+      DATAGEN_MESSAGE_MODE: quickstart
       DATAGEN_MESSAGE_QUICKSTART: user
       
 ```
