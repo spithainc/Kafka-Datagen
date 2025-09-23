@@ -4,6 +4,12 @@ on:
   push:
     tags: [ 'v*.*.*' ]
   pull_request: []
+  workflow_dispatch:      # 수동 실행 허용
+    inputs:
+      release_tag:
+        description: 'Tag to build/release (e.g. v0.2.0)'
+        required: true
+        type: string
 
 jobs:
   docker_build_and_push:
