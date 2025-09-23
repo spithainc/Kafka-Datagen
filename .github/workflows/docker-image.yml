@@ -3,7 +3,6 @@ name: kafka-datagen
 on:
   push:
     tags: [ 'v*.*.*' ]
-  pull_request: []
   workflow_dispatch:      # 수동 실행 허용
     inputs:
       release_tag:
