@@ -98,10 +98,10 @@ docker-compose -f example/docker-compose.yml  up -d
 ### Datagen Producer Tls
 | Docker Environment            | YAML                          | Default Value | type   | Description                         |
 |-------------------------------|-------------------------------|---------------|--------|-------------------------------------|
-| PRODUCER_TLS__CAFILE          | producer.tls.cafile           | -             | string | TLS CAFile registration             |
-| PRODUCER_TLS__CERTFILE        | producer.tls.certfile         | -             | string | TLS CertFile registration           |
-| PRODUCER_TLS__KEYFILE         | producer.tls.keyfile          | -             | string | TLS KeyFile registration            |
-| PRODUCER_TLS__SKIPVERIFY      | producer.tls.skipverify       | -             | bool   | TLS Skipverify setting              |
+| PRODUCER_TLS_CAFILE          | producer.tls.cafile           | -             | string | TLS CAFile registration             |
+| PRODUCER_TLS_CERTFILE        | producer.tls.certfile         | -             | string | TLS CertFile registration           |
+| PRODUCER_TLS_KEYFILE         | producer.tls.keyfile          | -             | string | TLS KeyFile registration            |
+| PRODUCER_TLS_SKIPVERIFY      | producer.tls.skipverify       | -             | bool   | TLS Skipverify setting              |
 
 ### Topic 
 | Docker Environment            | YAML                          | Default Value | type   | Description                                |
@@ -118,7 +118,7 @@ docker-compose -f example/docker-compose.yml  up -d
 | DATAGEN_PRODUCE_MODE                             | datagen.produce.mode                         | -             | string | Data generation mode setting                                                          | interval, rate-per-second, data-rate-limit-bps                       |
 | DATAGEN_PRODUCE_INTERVAL                         | datagen.produce.interval                     | -             | int    | Setting for message transmission interval in interval                                 | -                                                                             |
 | DATAGEN_PRODUCE_RATE__PER__SECOND                | datagen.produce.rate-per-second              | -             | int    | Setting for the number of messages per second in rate-per-second                      | -                                                                             |
-| DATAGEN_PRODUCE_DATA_RATE_LIMIT_BPS | datagen.produce.data-rate-limit-bps | -             | int    | Adjusting the limit of message amount per second in data-rate-limit-bps      | -                                                                             |
+| DATAGEN_PRODUCE_DATA__RATE__LIMIT__BPS | datagen.produce.data-rate-limit-bps | -             | int    | Adjusting the limit of message amount per second in data-rate-limit-bps      | -                                                                             |
 | DATAGEN_MESSAGE_MODE                             | datagen.message.mode               | -             | string | Data generation message mode setting                                                  | quickstart, message-bytes                                                    |
 | DATAGEN_MESSAGE_QUICKSTART                       | datagen.message.quickstart         | -             | string | Data generation quickstart setting                                                    | user, book, car, address, contact, movie, job                                |
 | DATAGEN_MESSAGE_MESSAGE__BYTES                   | datagen.message.message-bytes      | 100           | string | Setting for message-bytes generated per entry                                         | -                                                                            |
